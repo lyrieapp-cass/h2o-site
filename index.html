@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H2O Writes</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── SVG Icon Sprite ──────────────────────────────────── -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="icon-chevron-up" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+    <symbol id="icon-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+    <symbol id="icon-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+</svg>
+
+<!-- ── Navbar ─────────────────────────────────────────────── -->
+<nav class="navbar">
+    <div class="navbar__inner">
+
+        <!-- Logo -->
+        <a href="index.html" class="navbar__logo brand-text">H2O <span>Writes</span></a>
+
+        <!-- Center nav links -->
+        <div class="navbar__nav">
+            <a href="index.html" class="active">Home</a>
+            <a href="stories.html">Stories</a>
+            <a href="about.html">About</a>
+        </div>
+
+        <!-- Right actions -->
+        <div class="navbar__actions">
+
+            <!-- Search -->
+            <div class="navbar__search-wrap">
+                <input
+                    type="text"
+                    class="navbar__search-input"
+                    placeholder="Search stories..."
+                    aria-label="Search stories"
+                    maxlength="100"
+                >
+                <div class="navbar__search-results"></div>
+                <button class="icon-btn icon-btn--search" aria-label="Search" title="Search">
+                    <svg><use href="#icon-search"/></svg>
+                </button>
+            </div>
+
+            <!-- Theme toggle -->
+            <button class="icon-btn" data-theme-toggle aria-label="Toggle theme" title="Toggle theme">
+                <svg><use href="#icon-moon"/></svg>
+            </button>
+
+            <!-- LOGGED OUT: Log In button -->
+            <a href="login.html" class="login-btn" id="nav-login-btn">Log In</a>
+
+            <!-- LOGGED IN: Bell (hidden by default, shown by auth.js) -->
+            <div style="position:relative; display:none" id="nav-bell-wrap">
+                <button class="icon-btn icon-btn--bell" aria-label="Notifications" title="Notifications">
+                    <svg><use href="#icon-bell"/></svg>
+                    <span class="unread-dot" id="bell-dot" style="display:none"></span>
+                </button>
+
+                <!-- Bell dropdown -->
+                <div class="bell-dropdown" id="bell-dropdown">
+                    <div class="bell-dropdown__tabs">
+                        <button class="bell-dropdown__tab active" data-tab="stories">Stories</button>
+                        <button class="bell-dropdown__tab" data-tab="community">Community</button>
+                    </div>
+                    <div class="bell-dropdown__body" id="bell-dropdown-body">
+                        <div class="empty-state" style="padding: 24px 16px; font-size:13px;">Nothing here yet. Check back soon.</div>
+                    </div>
+                    <div class="bell-dropdown__footer">
+                        <a href="notifications.html">View all notifications</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOGGED IN: Avatar (hidden by default, shown by auth.js) -->
+            <div style="position:relative; display:none" id="nav-avatar-wrap">
+                <button class="avatar-btn" id="nav-avatar-btn" aria-label="Account menu">H</button>
+
+                <!-- Avatar dropdown -->
+                <div class="avatar-dropdown" id="avatar-dropdown">
+                    <div class="avatar-dropdown__header">
+                        <div class="avatar-dropdown__name" id="dropdown-name">Reader</div>
+                        <div class="avatar-dropdown__handle" id="dropdown-handle">@handle</div>
+                    </div>
+                    <a href="profile.html" class="avatar-dropdown__item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-user"/></svg>
+                        My Profile
+                    </a>
+                    <a href="profile.html" class="avatar-dropdown__item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-user"/></svg>
+                        Public Profile
+                    </a>
+                    <a href="#" class="avatar-dropdown__item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bookmark"/></svg>
+                        Bookmarks
+                    </a>
+                    <a href="#" class="avatar-dropdown__item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-book-open"/></svg>
+                        Read History
+                    </a>
+                    <a href="notifications.html" class="avatar-dropdown__item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-bell"/></svg>
+                        Notifications
+                    </a>
+                    <div class="avatar-dropdown__divider"></div>
+                    <button class="avatar-dropdown__item avatar-dropdown__item--danger" id="signout-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-log-out"/></svg>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<!-- ── Page Body ──────────────────────────────────────────── -->
+<main class="page-body">
+    <div class="container">
+
+        <!-- Announcement Banner -->
+        <div class="announcement-banner" id="announcement-banner" style="display:none">
+            <span class="announcement-banner__date" id="announcement-date">May 30</span>
+            <span class="announcement-banner__text" id="announcement-text"></span>
+        </div>
+
+        <!-- Featured Story Hero -->
+        <div class="featured-hero" id="featured-hero" style="display:none">
+            <div class="featured-hero__cover">
+                <div class="cover-wrapper" id="featured-cover-wrap">
+                    <img id="featured-cover-img" src="" alt="">
+                </div>
+            </div>
+            <div class="featured-hero__body">
+                <span class="featured-hero__label">Featured</span>
+                <h2 class="featured-hero__title" id="featured-title"></h2>
+                <div class="featured-hero__tags" id="featured-tags"></div>
+                <p class="featured-hero__synopsis" id="featured-synopsis"></p>
+                <a href="#" class="btn btn--primary featured-hero__cta" id="featured-cta">Start Reading</a>
+            </div>
+        </div>
+
+        <!-- Continue Reading (logged in only) -->
+        <div id="continue-reading-wrap" style="display:none">
+            <div class="section-heading">Continue Reading</div>
+            <a href="#" class="continue-reading" id="continue-reading-card">
+                <div class="continue-reading__thumb">
+                    <div class="cover-wrapper">
+                        <img id="cr-cover" src="" alt="">
+                    </div>
+                </div>
+                <div class="continue-reading__meta">
+                    <div class="continue-reading__story" id="cr-story"></div>
+                    <div class="continue-reading__chapter" id="cr-chapter"></div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-ghost);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+        </div>
+
+        <!-- Latest Updates -->
+        <div class="section-heading" style="margin-top: var(--gap-xl)">Latest Updates</div>
+        <div class="story-grid story-grid--2col" id="latest-grid">
+            <!-- Cards injected by JS -->
+            <!-- Static placeholder cards for Phase 1 (no Supabase yet) -->
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="latest-empty" style="display:none">
+            No stories found.
+        </div>
+
+    </div>
+</main>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__top">
+            <div>
+                <div class="footer__brand brand-text">H2O <span>Writes</span></div>
+                <div class="footer__tagline">Original stories by givemeaglassofh2o</div>
+            </div>
+            <nav class="footer__nav">
+                <a href="index.html">Home</a>
+                <a href="stories.html">Stories</a>
+                <a href="about.html">About</a>
+                <a href="rules.html">Rules</a>
+                <a href="terms.html">Terms</a>
+            </nav>
+            <div class="footer__socials">
+                <a href="#" class="footer__social-link" aria-label="TikTok">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                </a>
+                <a href="#" class="footer__social-link" aria-label="Twitter / X">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 4l16 16M4 20L20 4"/></svg>
+                </a>
+                <a href="#" class="footer__social-link" aria-label="Instagram">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span class="footer__copy">&copy; 2025 H2O Writes. All rights reserved.</span>
+            <div class="footer__links">
+                <a href="rules.html">Community Rules</a>
+                <a href="terms.html">Terms</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ── Mobile Bottom Nav ──────────────────────────────────── -->
+<nav class="mobile-nav" aria-label="Mobile navigation">
+    <div class="mobile-nav__inner">
+        <button class="mobile-nav__tab active" data-page="home" onclick="location.href='index.html'">
+            <svg><use href="#icon-home"/></svg>
+            <span>Home</span>
+        </button>
+        <button class="mobile-nav__tab" data-page="stories" onclick="location.href='stories.html'">
+            <svg><use href="#icon-grid"/></svg>
+            <span>Stories</span>
+        </button>
+        <button class="mobile-nav__tab" data-page="search" onclick="location.href='stories.html#search'">
+            <svg><use href="#icon-search"/></svg>
+            <span>Search</span>
+        </button>
+        <button class="mobile-nav__tab" data-page="notifs" data-auth-required>
+            <svg><use href="#icon-bell"/></svg>
+            <span class="mobile-nav__unread" id="mobile-unread-dot" style="display:none"></span>
+            <span>Notifs</span>
+        </button>
+        <button class="mobile-nav__tab" data-page="profile" data-auth-required>
+            <svg><use href="#icon-user"/></svg>
+            <span>Profile</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ── Auth Gate Modal (logged-out) ──────────────────────── -->
+<div class="modal-overlay" data-modal="auth-gate" id="auth-gate-modal">
+    <div class="modal">
+        <div class="modal__title">Hold on</div>
+        <div class="modal__body">You need an account to access this.</div>
+        <div class="modal__actions">
+            <a href="login.html" class="btn btn--primary">Log In</a>
+            <a href="register.html" class="btn btn--secondary">Register</a>
+        </div>
+    </div>
+</div>
+
+<!-- ── Scroll-to-top ──────────────────────────────────────── -->
+<button id="scroll-top-btn" aria-label="Scroll to top">
+    <svg><use href="#icon-chevron-up"/></svg>
+</button>
+
+<!-- ── Scripts ────────────────────────────────────────────── -->
+<script src="js/main.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script>
+/* ── Homepage: Static placeholder data (replaced by Supabase in Phase 2) ── */
+
+const PLACEHOLDER_STORIES = [
+    {
+        slug: 'the-tide-between-us',
+        title: 'The Tide Between Us',
+        cover: null,
+        status: 'ongoing',
+        genre: ['Romance', 'Drama'],
+        latest_chapter: 12,
+        updated: '2025-05-28',
+        views: 8420,
+        hearts: 310,
+    },
+    {
+        slug: 'salt-and-silence',
+        title: 'Salt and Silence',
+        cover: null,
+        status: 'completed',
+        genre: ['Thriller'],
+        latest_chapter: 24,
+        updated: '2025-05-20',
+        views: 5100,
+        hearts: 180,
+    },
+    {
+        slug: 'deep-current',
+        title: 'Deep Current',
+        cover: null,
+        status: 'ongoing',
+        genre: ['Fantasy'],
+        latest_chapter: 7,
+        updated: '2025-05-29',
+        views: 3300,
+        hearts: 95,
+    },
+    {
+        slug: 'glass-harbor',
+        title: 'Glass Harbor',
+        cover: null,
+        status: 'ongoing',
+        genre: ['Mystery'],
+        latest_chapter: 5,
+        updated: '2025-05-27',
+        views: 2100,
+        hearts: 60,
+    },
+    {
+        slug: 'undertow',
+        title: 'Undertow',
+        cover: null,
+        status: 'completed',
+        genre: ['Horror'],
+        latest_chapter: 18,
+        updated: '2025-04-10',
+        views: 4700,
+        hearts: 220,
+    },
+    {
+        slug: 'aqua-nova',
+        title: 'Aqua Nova',
+        cover: null,
+        status: 'ongoing',
+        genre: ['Sci-Fi'],
+        latest_chapter: 3,
+        updated: '2025-05-30',
+        views: 890,
+        hearts: 22,
+    },
+];
+
+// Expose for search
+window.H2O_STORIES = PLACEHOLDER_STORIES.map(s => ({
+    title: s.title,
+    slug: s.slug,
+    cover: s.cover,
+}));
+
+// Popularity score
+function rankScore(s) {
+    return (s.views * 1) + (s.hearts * 3);
+}
+
+function isNewChapter(dateStr) {
+    const d = new Date(dateStr);
+    const now = new Date();
+    return (now - d) / (1000 * 60 * 60 * 24) <= 7;
+}
+
+function timeAgo(dateStr) {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function buildStoryCard(story, rank) {
+    const isNew = isNewChapter(story.updated);
+    const statusClass = story.status === 'completed' ? 'badge--status-completed' : 'badge--status-ongoing';
+    const statusLabel = story.status === 'completed' ? 'Completed' : 'Ongoing';
+
+    let rankBadge = '';
+    if (rank === 1) rankBadge = `<span class="badge badge--rank badge--rank-1" style="position:absolute;top:8px;left:8px">#1</span>`;
+    else if (rank === 2) rankBadge = `<span class="badge badge--rank badge--rank-2" style="position:absolute;top:8px;left:8px">#2</span>`;
+    else if (rank === 3) rankBadge = `<span class="badge badge--rank badge--rank-3" style="position:absolute;top:8px;left:8px">#3</span>`;
+
+    const coverContent = story.cover
+        ? `<img src="${story.cover}" alt="${escapeHtml(story.title)}" loading="lazy">`
+        : `<div class="cover-title">${escapeHtml(story.title)}</div>`;
+
+    const coverClass = story.cover ? '' : ' is-placeholder';
+
+    return `
+        <a class="story-card" href="story.html?slug=${story.slug}">
+            <div class="story-card__cover-wrap${coverClass}">
+                ${coverContent}
+                ${rankBadge}
+                <span class="badge ${statusClass} story-card__badge-bl">${statusLabel}</span>
+                <button class="quick-bookmark-btn story-card__badge-tr" aria-label="Bookmark" onclick="event.preventDefault(); event.stopPropagation();">
+                    <svg viewBox="0 0 24 24"><use href="#icon-bookmark"/></svg>
+                </button>
+                ${isNew ? '<span class="badge badge--new" style="position:absolute;top:8px;right:36px">NEW</span>' : ''}
+            </div>
+            <div class="story-card__meta">
+                <div class="story-card__chapter">
+                    Ch.${String(story.latest_chapter).padStart(2,'0')}
+                    <span style="margin-left:auto;font-weight:400;font-size:11px;color:var(--text-ghost)">${timeAgo(story.updated)}</span>
+                </div>
+                <div class="story-card__title">${escapeHtml(story.title)}</div>
+            </div>
+        </a>
+    `;
+}
+
+function renderLatestGrid() {
+    const grid = document.getElementById('latest-grid');
+    if (!grid) return;
+
+    // Sort by most recently updated
+    const sorted = [...PLACEHOLDER_STORIES].sort((a, b) => new Date(b.updated) - new Date(a.updated));
+
+    // Rank by popularity
+    const ranked = [...PLACEHOLDER_STORIES].sort((a, b) => rankScore(b) - rankScore(a));
+    const rankMap = {};
+    ranked.forEach((s, i) => { rankMap[s.slug] = i + 1; });
+
+    if (sorted.length === 0) {
+        document.getElementById('latest-empty').style.display = 'block';
+        return;
+    }
+
+    grid.innerHTML = sorted.map(s => buildStoryCard(s, rankMap[s.slug])).join('');
+}
+
+document.addEventListener('DOMContentLoaded', renderLatestGrid);
+</script>
+
+</body>
+</html>

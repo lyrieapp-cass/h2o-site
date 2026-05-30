@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stories — H2O Writes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Stories page specific */
+        .stories-header {
+            margin-bottom: var(--gap-lg);
+        }
+
+        .stories-header h1 {
+            font-family: var(--font-brand);
+            font-size: clamp(28px, 5vw, 40px);
+            letter-spacing: 0.03em;
+            color: var(--text);
+            margin-bottom: var(--gap-sm);
+        }
+
+        .stories-header p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Search bar */
+        .stories-search-wrap {
+            position: relative;
+            margin-bottom: var(--gap-md);
+        }
+
+        .stories-search-input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: var(--font-ui);
+            font-size: 14px;
+            padding: 10px 14px 10px 40px;
+            transition: border-color var(--transition);
+        }
+
+        .stories-search-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .stories-search-input::placeholder {
+            color: var(--text-ghost);
+        }
+
+        .stories-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-ghost);
+            pointer-events: none;
+        }
+
+        .stories-search-icon svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Filter row */
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-sm);
+            flex-wrap: wrap;
+            margin-bottom: var(--gap-lg);
+            padding-bottom: var(--gap-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-ghost);
+            flex-shrink: 0;
+        }
+
+        .filter-select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: var(--font-ui);
+            font-size: 13px;
+            padding: 6px 28px 6px 10px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236E8CA4' d='M5 7L0.5 2.5h9z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            transition: border-color var(--transition);
+        }
+
+        .filter-select:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .filter-select.is-active {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Results count */
+        .results-count {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-ghost);
+            margin-bottom: var(--gap-md);
+        }
+
+        /* No results */
+        #stories-empty {
+            display: none;
+            text-align: center;
+            padding: var(--gap-2xl) var(--gap-lg);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── SVG Icon Sprite ──────────────────────────────────── -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="icon-bookmark" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="icon-chevron-up" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+    <symbol id="icon-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="icon-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+</svg>
+
+<!-- ── Navbar ─────────────────────────────────────────────── -->
+<nav class="navbar">
+    <div class="navbar__inner">
+        <a href="index.html" class="navbar__logo brand-text">H2O <span>Writes</span></a>
+        <div class="navbar__nav">
+            <a href="index.html">Home</a>
+            <a href="stories.html" class="active">Stories</a>
+            <a href="about.html">About</a>
+        </div>
+        <div class="navbar__actions">
+            <div class="navbar__search-wrap">
+                <input type="text" class="navbar__search-input" placeholder="Search stories..." aria-label="Search stories" maxlength="100">
+                <div class="navbar__search-results"></div>
+                <button class="icon-btn icon-btn--search" aria-label="Search" title="Search">
+                    <svg><use href="#icon-search"/></svg>
+                </button>
+            </div>
+            <button class="icon-btn" data-theme-toggle aria-label="Toggle theme" title="Toggle theme">
+                <svg><use href="#icon-moon"/></svg>
+            </button>
+            <a href="login.html" class="login-btn" id="nav-login-btn">Log In</a>
+            <div style="position:relative; display:none" id="nav-bell-wrap">
+                <button class="icon-btn icon-btn--bell" aria-label="Notifications">
+                    <svg><use href="#icon-bell"/></svg>
+                    <span class="unread-dot" id="bell-dot" style="display:none"></span>
+                </button>
+            </div>
+            <div style="position:relative; display:none" id="nav-avatar-wrap">
+                <button class="avatar-btn" id="nav-avatar-btn">H</button>
+                <div class="avatar-dropdown" id="avatar-dropdown">
+                    <div class="avatar-dropdown__header">
+                        <div class="avatar-dropdown__name" id="dropdown-name">Reader</div>
+                        <div class="avatar-dropdown__handle" id="dropdown-handle">@handle</div>
+                    </div>
+                    <a href="profile.html" class="avatar-dropdown__item">My Profile</a>
+                    <a href="#" class="avatar-dropdown__item">Bookmarks</a>
+                    <a href="#" class="avatar-dropdown__item">Read History</a>
+                    <a href="notifications.html" class="avatar-dropdown__item">Notifications</a>
+                    <div class="avatar-dropdown__divider"></div>
+                    <button class="avatar-dropdown__item avatar-dropdown__item--danger" id="signout-btn">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Page Body ──────────────────────────────────────────── -->
+<main class="page-body" id="search">
+    <div class="container">
+
+        <div class="stories-header">
+            <h1>Stories</h1>
+            <p>All original stories by H2O — updated regularly.</p>
+        </div>
+
+        <!-- Search bar -->
+        <div class="stories-search-wrap">
+            <span class="stories-search-icon">
+                <svg><use href="#icon-search"/></svg>
+            </span>
+            <input
+                type="text"
+                id="stories-search"
+                class="stories-search-input"
+                placeholder="Search by title..."
+                maxlength="100"
+                autocomplete="off"
+            >
+        </div>
+
+        <!-- Filter row -->
+        <div class="filter-row">
+            <span class="filter-label">Filter:</span>
+            <select id="filter-genre" class="filter-select" aria-label="Filter by genre">
+                <option value="">All Genres</option>
+                <option value="Romance">Romance</option>
+                <option value="Drama">Drama</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Thriller">Thriller</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Horror">Horror</option>
+                <option value="Sci-Fi">Sci-Fi</option>
+            </select>
+            <select id="filter-status" class="filter-select" aria-label="Filter by status">
+                <option value="">All Status</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+            <select id="filter-warning" class="filter-select" aria-label="Filter by content warning">
+                <option value="">All Content</option>
+                <option value="Mature">Mature</option>
+                <option value="Violence">Violence</option>
+                <option value="Dark Themes">Dark Themes</option>
+            </select>
+        </div>
+
+        <!-- Results count -->
+        <div class="results-count" id="results-count"></div>
+
+        <!-- Story grid -->
+        <div class="story-grid story-grid--2col" id="stories-grid"></div>
+
+        <!-- Empty state -->
+        <div id="stories-empty">No stories found.</div>
+
+    </div>
+</main>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__top">
+            <div>
+                <div class="footer__brand brand-text">H2O <span>Writes</span></div>
+                <div class="footer__tagline">Original stories by givemeaglassofh2o</div>
+            </div>
+            <nav class="footer__nav">
+                <a href="index.html">Home</a>
+                <a href="stories.html">Stories</a>
+                <a href="about.html">About</a>
+                <a href="rules.html">Rules</a>
+                <a href="terms.html">Terms</a>
+            </nav>
+            <div class="footer__socials">
+                <a href="#" class="footer__social-link" aria-label="TikTok">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                </a>
+                <a href="#" class="footer__social-link" aria-label="Twitter / X">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 4l16 16M4 20L20 4"/></svg>
+                </a>
+                <a href="#" class="footer__social-link" aria-label="Instagram">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span class="footer__copy">&copy; 2025 H2O Writes. All rights reserved.</span>
+            <div class="footer__links">
+                <a href="rules.html">Community Rules</a>
+                <a href="terms.html">Terms</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ── Mobile Bottom Nav ──────────────────────────────────── -->
+<nav class="mobile-nav">
+    <div class="mobile-nav__inner">
+        <button class="mobile-nav__tab" data-page="home" onclick="location.href='index.html'">
+            <svg><use href="#icon-home"/></svg>
+            <span>Home</span>
+        </button>
+        <button class="mobile-nav__tab active" data-page="stories" onclick="location.href='stories.html'">
+            <svg><use href="#icon-grid"/></svg>
+            <span>Stories</span>
+        </button>
+        <button class="mobile-nav__tab active" data-page="search">
+            <svg><use href="#icon-search"/></svg>
+            <span>Search</span>
+        </button>
+        <button class="mobile-nav__tab" data-page="notifs" data-auth-required>
+            <svg><use href="#icon-bell"/></svg>
+            <span>Notifs</span>
+        </button>
+        <button class="mobile-nav__tab" data-page="profile" data-auth-required>
+            <svg><use href="#icon-user"/></svg>
+            <span>Profile</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ── Auth Gate Modal ────────────────────────────────────── -->
+<div class="modal-overlay" data-modal="auth-gate" id="auth-gate-modal">
+    <div class="modal">
+        <div class="modal__title">Hold on</div>
+        <div class="modal__body">You need an account to access this.</div>
+        <div class="modal__actions">
+            <a href="login.html" class="btn btn--primary">Log In</a>
+            <a href="register.html" class="btn btn--secondary">Register</a>
+        </div>
+    </div>
+</div>
+
+<!-- ── Scroll-to-top ──────────────────────────────────────── -->
+<button id="scroll-top-btn" aria-label="Scroll to top">
+    <svg><use href="#icon-chevron-up"/></svg>
+</button>
+
+<!-- ── Scripts ────────────────────────────────────────────── -->
+<script src="js/main.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script>
+/* ── Stories Library: Static placeholder data (replaced by Supabase in Phase 2) ── */
+
+const ALL_STORIES = [
+    {
+        slug: 'the-tide-between-us',
+        title: 'The Tide Between Us',
+        cover: null,
+        status: 'ongoing',
+        genre: ['Romance', 'Drama'],
+        warnings: [],
+        latest_chapter: 12,
+        updated: '2025-05-28',
+        views: 8420,
+        hearts: 310,
+    },
+    {
+        slug: 'salt-and-silence',
+        title: 'Salt and Silence',
+        cover: null,
+        status: 'completed',
+        genre: ['Thriller'],
+        warnings: ['Dark Themes'],
+        latest_chapter: 24,
+        updated: '2025-05-20',
+        views: 5100,
+        hearts: 180,
+    },
+    {
+        slug: 'deep-current',
+        title: 'Deep Current',
+        cover: null,
+        status: 'ongoing',
+        genre: ['Fantasy'],
+        warnings: ['Violence'],
+        latest_chapter: 7,
+        updated: '2025-05-29',
+        views: 3300,
+        hearts: 95,
+    },
+    {
+        slug: 'glass-harbor',
+        title: 'Glass Harbor',
+        cover: null,
+        status: 'ongoing',
+        genre: ['Mystery'],
+        warnings: [],
+        latest_chapter: 5,
+        updated: '2025-05-27',
+        views: 2100,
+        hearts: 60,
+    },
+    {
+        slug: 'undertow',
+        title: 'Undertow',
+        cover: null,
+        status: 'completed',
+        genre: ['Horror'],
+        warnings: ['Mature', 'Dark Themes'],
+        latest_chapter: 18,
+        updated: '2025-04-10',
+        views: 4700,
+        hearts: 220,
+    },
+    {
+        slug: 'aqua-nova',
+        title: 'Aqua Nova',
+        cover: null,
+        status: 'ongoing',
+        genre: ['Sci-Fi'],
+        warnings: [],
+        latest_chapter: 3,
+        updated: '2025-05-30',
+        views: 890,
+        hearts: 22,
+    },
+];
+
+// Expose for navbar live search
+window.H2O_STORIES = ALL_STORIES.map(s => ({ title: s.title, slug: s.slug, cover: s.cover }));
+
+function isNewChapter(dateStr) {
+    const d = new Date(dateStr);
+    const now = new Date();
+    return (now - d) / (1000 * 60 * 60 * 24) <= 7;
+}
+
+function timeAgo(dateStr) {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function buildCard(story) {
+    const isNew = isNewChapter(story.updated);
+    const statusClass = story.status === 'completed' ? 'badge--status-completed' : 'badge--status-ongoing';
+    const statusLabel = story.status === 'completed' ? 'Completed' : 'Ongoing';
+    const coverContent = story.cover
+        ? `<img src="${story.cover}" alt="${escapeHtml(story.title)}" loading="lazy">`
+        : `<div class="cover-title">${escapeHtml(story.title)}</div>`;
+    const coverClass = story.cover ? '' : ' is-placeholder';
+
+    return `
+        <a class="story-card" href="story.html?slug=${story.slug}">
+            <div class="story-card__cover-wrap${coverClass}">
+                ${coverContent}
+                <span class="badge ${statusClass} story-card__badge-bl">${statusLabel}</span>
+                <button class="quick-bookmark-btn story-card__badge-tr" aria-label="Bookmark" onclick="event.preventDefault(); event.stopPropagation();">
+                    <svg viewBox="0 0 24 24"><use href="#icon-bookmark"/></svg>
+                </button>
+                ${isNew ? '<span class="badge badge--new" style="position:absolute;top:8px;right:36px">NEW</span>' : ''}
+            </div>
+            <div class="story-card__meta">
+                <div class="story-card__chapter">
+                    Ch.${String(story.latest_chapter).padStart(2,'0')}
+                    <span style="margin-left:auto;font-weight:400;font-size:11px;color:var(--text-ghost)">${timeAgo(story.updated)}</span>
+                </div>
+                <div class="story-card__title">${escapeHtml(story.title)}</div>
+            </div>
+        </a>
+    `;
+}
+
+function getFilters() {
+    return {
+        query: document.getElementById('stories-search').value.trim().toLowerCase(),
+        genre: document.getElementById('filter-genre').value,
+        status: document.getElementById('filter-status').value,
+        warning: document.getElementById('filter-warning').value,
+    };
+}
+
+function renderStories() {
+    const { query, genre, status, warning } = getFilters();
+    const grid = document.getElementById('stories-grid');
+    const empty = document.getElementById('stories-empty');
+    const count = document.getElementById('results-count');
+
+    let filtered = ALL_STORIES.filter(s => {
+        if (query && !s.title.toLowerCase().includes(query)) return false;
+        if (genre && !s.genre.includes(genre)) return false;
+        if (status && s.status !== status) return false;
+        if (warning && (!s.warnings || !s.warnings.includes(warning))) return false;
+        return true;
+    });
+
+    // Sort by most recently updated
+    filtered.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+
+    if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'block';
+        count.textContent = '';
+    } else {
+        empty.style.display = 'none';
+        grid.innerHTML = filtered.map(buildCard).join('');
+        count.textContent = `${filtered.length} ${filtered.length === 1 ? 'story' : 'stories'}`;
+    }
+
+    // Update filter select visual state
+    ['filter-genre', 'filter-status', 'filter-warning'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.toggle('is-active', el.value !== '');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    renderStories();
+
+    document.getElementById('stories-search').addEventListener('input', renderStories);
+    document.getElementById('filter-genre').addEventListener('change', renderStories);
+    document.getElementById('filter-status').addEventListener('change', renderStories);
+    document.getElementById('filter-warning').addEventListener('change', renderStories);
+
+    // If landing from mobile search tab, focus the search input
+    if (window.location.hash === '#search') {
+        document.getElementById('stories-search').focus();
+    }
+});
+</script>
+
+</body>
+</html>
