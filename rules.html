@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Rules — H2O Writes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .rules-hero {
+            padding: var(--gap-xl) 0;
+            margin-bottom: var(--gap-xl);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rules-hero h1 {
+            font-family: var(--font-brand);
+            font-size: clamp(28px, 5vw, 44px);
+            letter-spacing: 0.03em;
+            color: var(--text);
+            margin-bottom: var(--gap-sm);
+        }
+
+        .rules-hero p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .rules-body {
+            max-width: 680px;
+        }
+
+        .rule-section {
+            margin-bottom: var(--gap-2xl);
+        }
+
+        .rule-section__number {
+            font-family: var(--font-brand);
+            font-size: 48px;
+            color: var(--border);
+            line-height: 1;
+            margin-bottom: var(--gap-xs);
+        }
+
+        .rule-section__title {
+            font-family: var(--font-ui);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: var(--gap-md);
+        }
+
+        .rule-section p {
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.85;
+            color: var(--text-muted);
+            margin-bottom: 1em;
+        }
+
+        .rule-section p strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .rule-list {
+            list-style: none;
+            margin: var(--gap-md) 0;
+        }
+
+        .rule-list li {
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-muted);
+            padding: 6px 0 6px 20px;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rule-list li:last-child { border-bottom: none; }
+
+        .rule-list li::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .rules-note {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--color-warning);
+            border-radius: var(--radius-sm);
+            padding: var(--gap-md) var(--gap-lg);
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: var(--gap-xl) 0;
+            line-height: 1.7;
+        }
+
+        .rules-note strong { color: var(--text); }
+    </style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="icon-chevron-up" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+</svg>
+
+<nav class="navbar">
+    <div class="navbar__inner">
+        <a href="index.html" class="navbar__logo brand-text">H2O <span>Writes</span></a>
+        <div class="navbar__nav">
+            <a href="index.html">Home</a>
+            <a href="stories.html">Stories</a>
+            <a href="about.html">About</a>
+        </div>
+        <div class="navbar__actions">
+            <div class="navbar__search-wrap">
+                <input type="text" class="navbar__search-input" placeholder="Search stories..." maxlength="100">
+                <div class="navbar__search-results"></div>
+                <button class="icon-btn icon-btn--search" aria-label="Search"><svg><use href="#icon-search"/></svg></button>
+            </div>
+            <button class="icon-btn" data-theme-toggle aria-label="Toggle theme"><svg><use href="#icon-moon"/></svg></button>
+            <a href="login.html" class="login-btn" id="nav-login-btn">Log In</a>
+            <div style="position:relative;display:none" id="nav-bell-wrap">
+                <button class="icon-btn icon-btn--bell" aria-label="Notifications"><svg><use href="#icon-bell"/></svg><span class="unread-dot" id="bell-dot" style="display:none"></span></button>
+            </div>
+            <div style="position:relative;display:none" id="nav-avatar-wrap">
+                <button class="avatar-btn" id="nav-avatar-btn">H</button>
+                <div class="avatar-dropdown" id="avatar-dropdown">
+                    <div class="avatar-dropdown__header">
+                        <div class="avatar-dropdown__name" id="dropdown-name">Reader</div>
+                        <div class="avatar-dropdown__handle" id="dropdown-handle">@handle</div>
+                    </div>
+                    <a href="profile.html" class="avatar-dropdown__item">My Profile</a>
+                    <div class="avatar-dropdown__divider"></div>
+                    <button class="avatar-dropdown__item avatar-dropdown__item--danger" id="signout-btn">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="page-body">
+    <div class="container--narrow">
+
+        <div class="rules-hero">
+            <div class="breadcrumb" style="margin-bottom:var(--gap-md)">
+                <a href="index.html">Home</a><span>/</span><span>Community Rules</span>
+            </div>
+            <h1>Community Rules</h1>
+            <p>Last updated: May 2025</p>
+        </div>
+
+        <div class="rules-body">
+
+            <div class="rules-note">
+                <strong>Short version:</strong> Be respectful, tag your spoilers, don't repost the stories, and don't be weird. The full version is below.
+            </div>
+
+            <div class="rule-section">
+                <div class="rule-section__number">01</div>
+                <div class="rule-section__title">Be respectful</div>
+                <p>This is a reading community, not a debate platform. You're allowed to dislike a story or a character, but there's a difference between criticism and cruelty.</p>
+                <ul class="rule-list">
+                    <li>Don't insult other readers or the author personally</li>
+                    <li>Disagree with ideas, not people</li>
+                    <li>No hate speech, slurs, or targeted harassment of any kind</li>
+                    <li>If a comment section gets hostile, it will be locked</li>
+                </ul>
+            </div>
+
+            <div class="rule-section">
+                <div class="rule-section__number">02</div>
+                <div class="rule-section__title">Tag your spoilers</div>
+                <p>Chapters have their own comment sections specifically so readers can discuss without spoiling others. Keep chapter-specific plot details in the right place.</p>
+                <ul class="rule-list">
+                    <li>Use the spoiler tag when discussing plot points in general story comments</li>
+                    <li>Don't put major spoilers in comment previews or reply excerpts</li>
+                    <li>Spoiling endings or twists in early chapter comments will result in deletion</li>
+                </ul>
+            </div>
+
+            <div class="rule-section">
+                <div class="rule-section__number">03</div>
+                <div class="rule-section__title">No reposting</div>
+                <p>All stories on H2O Writes are original work. They may not be copied, reposted, translated, or distributed anywhere else — in full or in part — without explicit written permission.</p>
+                <ul class="rule-list">
+                    <li>No posting chapters or excerpts on other platforms</li>
+                    <li>No AI training use of any story content</li>
+                    <li>Screenshots for personal use are fine; sharing them publicly is not</li>
+                    <li>If you see the stories reposted elsewhere, please report it</li>
+                </ul>
+            </div>
+
+            <div class="rule-section">
+                <div class="rule-section__number">04</div>
+                <div class="rule-section__title">Keep it on topic</div>
+                <p>Comments are for discussing the story. Spam, self-promotion, unrelated links, and off-topic content will be removed.</p>
+                <ul class="rule-list">
+                    <li>No promotional links or advertisements</li>
+                    <li>No spam or repeated identical comments</li>
+                    <li>No soliciting other readers for external platforms</li>
+                </ul>
+            </div>
+
+            <div class="rule-section">
+                <div class="rule-section__number">05</div>
+                <div class="rule-section__title">Content warnings exist for a reason</div>
+                <p>Stories with mature or dark content are tagged before you read them. If a story is labeled with a content warning, engaging with it means you've acknowledged the warning.</p>
+                <ul class="rule-list">
+                    <li>Don't complain in comments about content that was clearly warned</li>
+                    <li>Do flag content warnings that appear to be missing or incorrect</li>
+                </ul>
+            </div>
+
+            <div class="rule-section">
+                <div class="rule-section__number">06</div>
+                <div class="rule-section__title">Enforcement</div>
+                <p>Breaking these rules can result in comment deletion, temporary muting, or a permanent account ban depending on severity. There's no appeal process for bans resulting from harassment or hate speech.</p>
+                <p>If you see a comment that violates these rules, use the report button. I read every report.</p>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__top">
+            <div>
+                <div class="footer__brand brand-text">H2O <span>Writes</span></div>
+                <div class="footer__tagline">Original stories by givemeaglassofh2o</div>
+            </div>
+            <nav class="footer__nav">
+                <a href="index.html">Home</a>
+                <a href="stories.html">Stories</a>
+                <a href="about.html">About</a>
+                <a href="rules.html">Rules</a>
+                <a href="terms.html">Terms</a>
+            </nav>
+        </div>
+        <div class="footer__bottom">
+            <span class="footer__copy">&copy; 2025 H2O Writes. All rights reserved.</span>
+        </div>
+    </div>
+</footer>
+
+<nav class="mobile-nav">
+    <div class="mobile-nav__inner">
+        <button class="mobile-nav__tab" onclick="location.href='index.html'"><svg><use href="#icon-home"/></svg><span>Home</span></button>
+        <button class="mobile-nav__tab" onclick="location.href='stories.html'"><svg><use href="#icon-grid"/></svg><span>Stories</span></button>
+        <button class="mobile-nav__tab" onclick="location.href='stories.html#search'"><svg><use href="#icon-search"/></svg><span>Search</span></button>
+        <button class="mobile-nav__tab" data-auth-required><svg><use href="#icon-bell"/></svg><span>Notifs</span></button>
+        <button class="mobile-nav__tab" data-auth-required><svg><use href="#icon-user"/></svg><span>Profile</span></button>
+    </div>
+</nav>
+
+<button id="scroll-top-btn" aria-label="Scroll to top"><svg><use href="#icon-chevron-up"/></svg></button>
+
+<script src="js/main.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

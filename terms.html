@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms — H2O Writes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .terms-hero {
+            padding: var(--gap-xl) 0;
+            margin-bottom: var(--gap-xl);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terms-hero h1 {
+            font-family: var(--font-brand);
+            font-size: clamp(28px, 5vw, 44px);
+            letter-spacing: 0.03em;
+            color: var(--text);
+            margin-bottom: var(--gap-sm);
+        }
+
+        .terms-hero p { font-size: 14px; color: var(--text-muted); }
+
+        .terms-body { max-width: 680px; }
+
+        .terms-section { margin-bottom: var(--gap-2xl); }
+
+        .terms-section__title {
+            font-family: var(--font-ui);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.02em;
+            margin-bottom: var(--gap-md);
+            padding-bottom: var(--gap-sm);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terms-section p {
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.85;
+            color: var(--text-muted);
+            margin-bottom: 1em;
+        }
+
+        .terms-section p strong { color: var(--text); font-weight: 600; }
+
+        .terms-toc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--gap-lg);
+            margin-bottom: var(--gap-2xl);
+        }
+
+        .terms-toc__title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-ghost);
+            margin-bottom: var(--gap-md);
+        }
+
+        .terms-toc a {
+            display: block;
+            font-size: 14px;
+            color: var(--text-muted);
+            padding: 4px 0;
+            transition: color var(--transition);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terms-toc a:last-child { border-bottom: none; }
+        .terms-toc a:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="icon-chevron-up" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+</svg>
+
+<nav class="navbar">
+    <div class="navbar__inner">
+        <a href="index.html" class="navbar__logo brand-text">H2O <span>Writes</span></a>
+        <div class="navbar__nav">
+            <a href="index.html">Home</a>
+            <a href="stories.html">Stories</a>
+            <a href="about.html">About</a>
+        </div>
+        <div class="navbar__actions">
+            <div class="navbar__search-wrap">
+                <input type="text" class="navbar__search-input" placeholder="Search stories..." maxlength="100">
+                <div class="navbar__search-results"></div>
+                <button class="icon-btn icon-btn--search" aria-label="Search"><svg><use href="#icon-search"/></svg></button>
+            </div>
+            <button class="icon-btn" data-theme-toggle aria-label="Toggle theme"><svg><use href="#icon-moon"/></svg></button>
+            <a href="login.html" class="login-btn" id="nav-login-btn">Log In</a>
+            <div style="position:relative;display:none" id="nav-bell-wrap">
+                <button class="icon-btn icon-btn--bell" aria-label="Notifications"><svg><use href="#icon-bell"/></svg><span class="unread-dot" id="bell-dot" style="display:none"></span></button>
+            </div>
+            <div style="position:relative;display:none" id="nav-avatar-wrap">
+                <button class="avatar-btn" id="nav-avatar-btn">H</button>
+                <div class="avatar-dropdown" id="avatar-dropdown">
+                    <div class="avatar-dropdown__header">
+                        <div class="avatar-dropdown__name" id="dropdown-name">Reader</div>
+                        <div class="avatar-dropdown__handle" id="dropdown-handle">@handle</div>
+                    </div>
+                    <a href="profile.html" class="avatar-dropdown__item">My Profile</a>
+                    <div class="avatar-dropdown__divider"></div>
+                    <button class="avatar-dropdown__item avatar-dropdown__item--danger" id="signout-btn">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="page-body">
+    <div class="container--narrow">
+
+        <div class="terms-hero">
+            <div class="breadcrumb" style="margin-bottom:var(--gap-md)">
+                <a href="index.html">Home</a><span>/</span><span>Terms</span>
+            </div>
+            <h1>Terms of Use</h1>
+            <p>Last updated: May 2025</p>
+        </div>
+
+        <div class="terms-body">
+
+            <div class="terms-toc">
+                <div class="terms-toc__title">Contents</div>
+                <a href="#use">1. Use of This Site</a>
+                <a href="#content">2. Content Ownership</a>
+                <a href="#accounts">3. Accounts</a>
+                <a href="#comments">4. User Comments</a>
+                <a href="#privacy">5. Privacy</a>
+                <a href="#changes">6. Changes</a>
+            </div>
+
+            <div class="terms-section" id="use">
+                <div class="terms-section__title">1. Use of This Site</div>
+                <p>H2O Writes is a personal creative platform. By accessing this site you agree to use it for its intended purpose — reading original fiction — and not for any commercial, automated, or harmful purpose.</p>
+                <p><strong>You may not:</strong> scrape, crawl, or systematically download content from this site; use any content for AI model training; attempt to reverse-engineer or disrupt the site's functionality; or use this platform for spam, advertising, or solicitation.</p>
+            </div>
+
+            <div class="terms-section" id="content">
+                <div class="terms-section__title">2. Content Ownership</div>
+                <p>All stories, chapter text, titles, and original creative content published on H2O Writes are the sole intellectual property of givemeaglassofh2o. All rights reserved.</p>
+                <p>You may not reproduce, distribute, translate, adapt, or publicly display any story content — in full or in part — without explicit written permission from the author.</p>
+                <p>Sharing a link to the site is encouraged. Reposting the actual content is not permitted.</p>
+            </div>
+
+            <div class="terms-section" id="accounts">
+                <div class="terms-section__title">3. Accounts</div>
+                <p>Creating an account is optional. Reading all stories is free without one. Accounts are required for bookmarking, commenting, and tracking read history.</p>
+                <p>You are responsible for maintaining the security of your account. Accounts found to be in violation of the Community Rules may be suspended or permanently banned. Banned accounts may not create new accounts.</p>
+                <p>You may request account deletion at any time. Deleted accounts and their associated data will be removed within 30 days.</p>
+            </div>
+
+            <div class="terms-section" id="comments">
+                <div class="terms-section__title">4. User Comments</div>
+                <p>By submitting a comment, you grant H2O Writes a non-exclusive license to display that comment on this platform. You retain ownership of your words.</p>
+                <p>Comments that violate the <a href="rules.html" style="color:var(--accent);font-weight:600">Community Rules</a> may be removed without notice. Repeated violations result in account suspension.</p>
+            </div>
+
+            <div class="terms-section" id="privacy">
+                <div class="terms-section__title">5. Privacy</div>
+                <p>H2O Writes collects only the minimum information necessary to operate: your email address (for account login), your chosen display name and username, and basic usage data (read history, bookmarks).</p>
+                <p><strong>Your data is never sold.</strong> It is not shared with third parties except as required to operate the platform (e.g. the authentication service). There are no ads on this site.</p>
+                <p>Read history and bookmarks are stored per-account and can be cleared from your profile at any time.</p>
+            </div>
+
+            <div class="terms-section" id="changes">
+                <div class="terms-section__title">6. Changes</div>
+                <p>These terms may be updated from time to time. Continued use of the site after changes are posted constitutes acceptance of the updated terms. The date at the top of this page reflects the most recent revision.</p>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__top">
+            <div>
+                <div class="footer__brand brand-text">H2O <span>Writes</span></div>
+                <div class="footer__tagline">Original stories by givemeaglassofh2o</div>
+            </div>
+            <nav class="footer__nav">
+                <a href="index.html">Home</a>
+                <a href="stories.html">Stories</a>
+                <a href="about.html">About</a>
+                <a href="rules.html">Rules</a>
+                <a href="terms.html">Terms</a>
+            </nav>
+        </div>
+        <div class="footer__bottom">
+            <span class="footer__copy">&copy; 2025 H2O Writes. All rights reserved.</span>
+        </div>
+    </div>
+</footer>
+
+<nav class="mobile-nav">
+    <div class="mobile-nav__inner">
+        <button class="mobile-nav__tab" onclick="location.href='index.html'"><svg><use href="#icon-home"/></svg><span>Home</span></button>
+        <button class="mobile-nav__tab" onclick="location.href='stories.html'"><svg><use href="#icon-grid"/></svg><span>Stories</span></button>
+        <button class="mobile-nav__tab" onclick="location.href='stories.html#search'"><svg><use href="#icon-search"/></svg><span>Search</span></button>
+        <button class="mobile-nav__tab" data-auth-required><svg><use href="#icon-bell"/></svg><span>Notifs</span></button>
+        <button class="mobile-nav__tab" data-auth-required><svg><use href="#icon-user"/></svg><span>Profile</span></button>
+    </div>
+</nav>
+
+<button id="scroll-top-btn" aria-label="Scroll to top"><svg><use href="#icon-chevron-up"/></svg></button>
+
+<script src="js/main.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

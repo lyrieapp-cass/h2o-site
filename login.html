@@ -163,47 +163,51 @@
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script>
-/* ── Login page logic (wired to Supabase in Phase 2A) ── */
-
-const loginBtn = document.getElementById('login-btn');
-const emailInput = document.getElementById('login-email');
+const loginBtn      = document.getElementById('login-btn');
+const emailInput    = document.getElementById('login-email');
 const passwordInput = document.getElementById('login-password');
-const errorEl = document.getElementById('login-error');
+const errorEl       = document.getElementById('login-error');
 
-function showError(msg) {
-    errorEl.textContent = msg;
-    errorEl.classList.add('is-visible');
-}
+function showError(msg) { errorEl.textContent = msg; errorEl.classList.add('is-visible'); }
+function clearError()   { errorEl.classList.remove('is-visible'); }
 
-function clearError() {
-    errorEl.classList.remove('is-visible');
+function onSupabaseReady(cb) {
+    if (window.supabase && window.supabase.auth) { cb(); }
+    else { window.addEventListener('supabase-ready', cb, { once: true }); }
 }
 
 async function handleLogin(e) {
     e.preventDefault();
     clearError();
 
-    const email = emailInput.value.trim();
+    const email    = emailInput.value.trim();
     const password = passwordInput.value;
 
-    if (!email || !password) {
-        showError('Please fill in all fields.');
-        return;
-    }
+    if (!email || !password) { showError('Please fill in all fields.'); return; }
 
     loginBtn.classList.add('btn--loading');
 
     try {
-        // Phase 2A: replace this block with Supabase auth
-        // const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        // if (error) { showError('Invalid email or password.'); return; }
-        // check if banned → showError('Your account has been banned.');
-        // check if admin → location.href = 'admin/dashboard.html';
-        // else → location.href = 'index.html';
+        await new Promise(resolve => { onSupabaseReady(resolve); if (window.supabase) resolve(); });
 
-        // Placeholder: simulate delay
-        await new Promise(r => setTimeout(r, 800));
-        showError('Login requires Supabase setup (Phase 2A).');
+        const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
+
+        if (error) { showError('Invalid email or password.'); return; }
+
+        const { data: profile } = await window.supabase
+            .from('profiles')
+            .select('is_banned, is_admin')
+            .eq('id', data.user.id)
+            .single();
+
+        if (profile?.is_banned) {
+            await window.supabase.auth.signOut();
+            showError('Your account has been banned.');
+            return;
+        }
+
+        location.href = profile?.is_admin ? 'admin/dashboard.html' : 'index.html';
+
     } catch (err) {
         showError('Something went wrong. Please try again.');
     } finally {
@@ -212,7 +216,7 @@ async function handleLogin(e) {
 }
 
 loginBtn.addEventListener('click', handleLogin);
-emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(e); });
+emailInput.addEventListener('keydown',    e => { if (e.key === 'Enter') handleLogin(e); });
 passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(e); });
 </script>
 

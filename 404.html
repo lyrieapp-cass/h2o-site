@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — H2O Writes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .not-found {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: var(--gap-xl);
+        }
+
+        .not-found__inner {
+            max-width: 440px;
+        }
+
+        .not-found__number {
+            font-family: var(--font-brand);
+            font-size: clamp(80px, 18vw, 140px);
+            color: var(--border);
+            line-height: 1;
+            letter-spacing: 0.04em;
+            margin-bottom: var(--gap-md);
+        }
+
+        .not-found__number span { color: var(--accent); }
+
+        .not-found__title {
+            font-family: var(--font-ui);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: var(--gap-sm);
+        }
+
+        .not-found__body {
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: var(--gap-xl);
+            font-style: italic;
+        }
+
+        .not-found__actions {
+            display: flex;
+            gap: var(--gap-sm);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .not-found__logo {
+            font-family: var(--font-brand);
+            font-size: 22px;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            margin-bottom: var(--gap-2xl);
+            display: block;
+        }
+
+        .not-found__logo span { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="not-found">
+    <div class="not-found__inner">
+        <a href="index.html" class="not-found__logo brand-text">H2O <span>Writes</span></a>
+        <div class="not-found__number">4<span>0</span>4</div>
+        <div class="not-found__title">This page drifted out to sea.</div>
+        <p class="not-found__body">
+            The page you're looking for doesn't exist, was moved, or the link is broken. Try heading back home — the stories are still there.
+        </p>
+        <div class="not-found__actions">
+            <a href="index.html" class="btn btn--primary">Back to Home</a>
+            <a href="stories.html" class="btn btn--secondary">Browse Stories</a>
+        </div>
+    </div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

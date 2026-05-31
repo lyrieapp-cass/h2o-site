@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stories — H2O Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .cover-thumb {
+            width: 32px;
+            flex-shrink: 0;
+            border-radius: 2px;
+            overflow: hidden;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+        }
+
+        .modal-overlay { align-items: flex-start; padding-top: 80px; }
+
+        .chapter-edit-row {
+            display: flex;
+            align-items: center;
+            gap: var(--gap-sm);
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chapter-edit-row:last-child { border-bottom: none; }
+
+        .chapter-edit-row .form-input {
+            flex: 1;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+    <symbol id="icon-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="icon-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="icon-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></symbol>
+</svg>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="dashboard.html" class="admin-sidebar__logo brand-text">H2O <span>Admin</span></a>
+        <div class="admin-sidebar__label">Overview</div>
+        <a href="dashboard.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>Dashboard</a>
+        <div class="admin-sidebar__label">Content</div>
+        <a href="stories.html" class="admin-nav-item active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-book-open"/></svg>Stories</a>
+        <a href="comments.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-message"/></svg>Comments</a>
+        <a href="comments.html#reported" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-flag"/></svg>Reported</a>
+        <div class="admin-sidebar__label">Users</div>
+        <a href="users.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-users"/></svg>Users</a>
+        <div class="admin-sidebar__label">System</div>
+        <a href="settings.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-settings"/></svg>Settings</a>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:var(--gap-md) 0;border-top:1px solid var(--border)">
+            <a href="../index.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-log-out"/></svg>Back to Site</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--gap-xl)">
+            <div class="admin-page-title" style="margin-bottom:0">Stories</div>
+            <button class="btn btn--primary btn--sm" id="new-story-btn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#icon-plus"/></svg>
+                New Story
+            </button>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Cover</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Chapters</th>
+                        <th>Views</th>
+                        <th>Visible</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="stories-table"></tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- Story edit modal -->
+<div class="modal-overlay" id="story-modal">
+    <div class="modal" style="max-width:520px;text-align:left">
+        <div class="modal__title" id="modal-title">Edit Story</div>
+        <div style="margin-top:var(--gap-lg)">
+            <div class="form-group">
+                <label class="form-label">Title</label>
+                <input type="text" id="edit-title" class="form-input" maxlength="100">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Slug</label>
+                <input type="text" id="edit-slug" class="form-input" maxlength="80" placeholder="the-tide-between-us">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Synopsis</label>
+                <textarea id="edit-synopsis" class="form-textarea" rows="4" maxlength="1000"></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-md)">
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select id="edit-status" class="form-select">
+                        <option value="ongoing">Ongoing</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Genre</label>
+                    <input type="text" id="edit-genre" class="form-input" placeholder="Romance, Drama">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Content Warnings</label>
+                <input type="text" id="edit-warnings" class="form-input" placeholder="Mature, Violence (comma separated)">
+            </div>
+            <label class="toggle-switch" style="margin-bottom:var(--gap-lg)">
+                <input type="checkbox" id="edit-visible" checked>
+                <span class="toggle-track"></span>
+                <span class="toggle-label">Visible to readers</span>
+            </label>
+        </div>
+        <div style="display:flex;gap:var(--gap-sm);justify-content:flex-end">
+            <button class="btn btn--ghost" id="modal-cancel">Cancel</button>
+            <button class="btn btn--primary" id="modal-save">Save Story</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+const STORIES = [
+    { id:1, slug:'the-tide-between-us', title:'The Tide Between Us', cover:null, status:'ongoing',   chapters:12, views:8420, visible:true  },
+    { id:2, slug:'salt-and-silence',    title:'Salt and Silence',    cover:null, status:'completed', chapters:24, views:5100, visible:true  },
+    { id:3, slug:'deep-current',        title:'Deep Current',        cover:null, status:'ongoing',   chapters:7,  views:3300, visible:true  },
+    { id:4, slug:'glass-harbor',        title:'Glass Harbor',        cover:null, status:'ongoing',   chapters:5,  views:2100, visible:true  },
+    { id:5, slug:'undertow',            title:'Undertow',            cover:null, status:'completed', chapters:18, views:4700, visible:true  },
+    { id:6, slug:'aqua-nova',           title:'Aqua Nova',           cover:null, status:'ongoing',   chapters:3,  views:890,  visible:false },
+];
+
+function renderTable() {
+    document.getElementById('stories-table').innerHTML = STORIES.map(s => `
+        <tr>
+            <td>
+                <div class="cover-thumb">
+                    <div class="cover-wrapper" style="border-radius:2px"></div>
+                </div>
+            </td>
+            <td style="font-weight:600;color:var(--text)">${escapeHtml(s.title)}</td>
+            <td><span class="badge ${s.status==='completed'?'badge--status-completed':'badge--status-ongoing'}">${s.status}</span></td>
+            <td>${s.chapters}</td>
+            <td>${s.views.toLocaleString()}</td>
+            <td>
+                <label class="toggle-switch">
+                    <input type="checkbox" ${s.visible?'checked':''} onchange="toggleVisible(${s.id}, this.checked)">
+                    <span class="toggle-track"></span>
+                </label>
+            </td>
+            <td>
+                <div style="display:flex;gap:4px">
+                    <button class="btn btn--ghost btn--sm" onclick="openEdit(${s.id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit"/></svg>
+                    </button>
+                    <a href="../story.html?slug=${s.slug}" class="btn btn--ghost btn--sm" target="_blank">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
+                    </a>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function toggleVisible(id, val) {
+    const s = STORIES.find(s => s.id === id);
+    if (s) s.visible = val;
+    // Phase 4A: update Supabase
+}
+
+function openEdit(id) {
+    const s = STORIES.find(s => s.id === id);
+    if (!s) return;
+    document.getElementById('modal-title').textContent = 'Edit Story';
+    document.getElementById('edit-title').value = s.title;
+    document.getElementById('edit-slug').value = s.slug;
+    document.getElementById('edit-status').value = s.status;
+    document.getElementById('edit-visible').checked = s.visible;
+    document.getElementById('story-modal').classList.add('is-open');
+}
+
+document.getElementById('new-story-btn').addEventListener('click', function () {
+    document.getElementById('modal-title').textContent = 'New Story';
+    document.getElementById('edit-title').value = '';
+    document.getElementById('edit-slug').value = '';
+    document.getElementById('edit-synopsis').value = '';
+    document.getElementById('edit-genre').value = '';
+    document.getElementById('edit-warnings').value = '';
+    document.getElementById('edit-visible').checked = true;
+    document.getElementById('story-modal').classList.add('is-open');
+});
+
+document.getElementById('modal-cancel').addEventListener('click', () => {
+    document.getElementById('story-modal').classList.remove('is-open');
+});
+
+document.getElementById('modal-save').addEventListener('click', () => {
+    document.getElementById('story-modal').classList.remove('is-open');
+    // Phase 4A: save to Supabase
+});
+
+document.addEventListener('DOMContentLoaded', renderTable);
+</script>
+</body>
+</html>

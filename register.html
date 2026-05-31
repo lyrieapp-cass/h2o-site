@@ -267,48 +267,33 @@
 
 const registerBtn  = document.getElementById('register-btn');
 const nameInput    = document.getElementById('reg-name');
-const handleInput  = document.getElementById('reg-handle');
-const emailInput   = document.getElementById('reg-email');
-const passwordInput= document.getElementById('reg-password');
-const errorEl      = document.getElementById('register-error');
-const successEl    = document.getElementById('register-success');
-const handleErrorEl= document.getElementById('handle-error');
+const handleInput   = document.getElementById('reg-handle');
+const emailInput    = document.getElementById('reg-email');
+const passwordInput = document.getElementById('reg-password');
+const errorEl       = document.getElementById('register-error');
+const successEl     = document.getElementById('register-success');
+const handleErrorEl = document.getElementById('handle-error');
 
 const HANDLE_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 
-function showError(msg) {
-    errorEl.textContent = msg;
-    errorEl.classList.add('is-visible');
-    successEl.classList.remove('is-visible');
+function showError(msg)   { errorEl.textContent = msg; errorEl.classList.add('is-visible'); successEl.classList.remove('is-visible'); }
+function showSuccess(msg) { successEl.textContent = msg; successEl.classList.add('is-visible'); errorEl.classList.remove('is-visible'); }
+function clearMessages()  { errorEl.classList.remove('is-visible'); successEl.classList.remove('is-visible'); }
+
+function onSupabaseReady(cb) {
+    if (window.supabase && window.supabase.auth) { cb(); }
+    else { window.addEventListener('supabase-ready', cb, { once: true }); }
 }
 
-function showSuccess(msg) {
-    successEl.textContent = msg;
-    successEl.classList.add('is-visible');
-    errorEl.classList.remove('is-visible');
-}
-
-function clearMessages() {
-    errorEl.classList.remove('is-visible');
-    successEl.classList.remove('is-visible');
-}
-
-// Handle live validation
 handleInput.addEventListener('input', function () {
     const val = this.value.trim();
-    if (!val) {
-        this.classList.remove('is-valid', 'is-invalid');
-        handleErrorEl.style.display = 'none';
-        return;
-    }
+    if (!val) { this.classList.remove('is-valid','is-invalid'); handleErrorEl.style.display='none'; return; }
     if (!HANDLE_REGEX.test(val)) {
-        this.classList.add('is-invalid');
-        this.classList.remove('is-valid');
-        handleErrorEl.textContent = 'Letters, numbers, and underscores only. 3–20 characters.';
+        this.classList.add('is-invalid'); this.classList.remove('is-valid');
+        handleErrorEl.textContent = 'Letters, numbers, underscores only. 3–20 chars.';
         handleErrorEl.style.display = 'block';
     } else {
-        this.classList.add('is-valid');
-        this.classList.remove('is-invalid');
+        this.classList.add('is-valid'); this.classList.remove('is-invalid');
         handleErrorEl.style.display = 'none';
     }
 });
@@ -322,24 +307,42 @@ async function handleRegister(e) {
     const email    = emailInput.value.trim();
     const password = passwordInput.value;
 
-    // Client-side validation
-    if (!name) { showError('Please enter a display name.'); return; }
-    if (!HANDLE_REGEX.test(handle)) { showError('Username must be 3–20 characters: letters, numbers, underscores only.'); return; }
-    if (!email) { showError('Please enter your email.'); return; }
-    if (password.length < 8) { showError('Password must be at least 8 characters.'); return; }
+    if (!name)                      { showError('Please enter a display name.'); return; }
+    if (!HANDLE_REGEX.test(handle)) { showError('Invalid username format.'); return; }
+    if (!email)                     { showError('Please enter your email.'); return; }
+    if (password.length < 8)        { showError('Password must be at least 8 characters.'); return; }
 
     registerBtn.classList.add('btn--loading');
 
     try {
-        // Phase 2A: replace this block with Supabase auth
-        // 1. Check handle uniqueness against profiles table
-        // 2. supabase.auth.signUp({ email, password })
-        // 3. Insert into profiles table: { id, display_name, handle, created_at }
-        // 4. On success → location.href = 'index.html'
+        await new Promise(resolve => { onSupabaseReady(resolve); if (window.supabase) resolve(); });
 
-        // Placeholder
-        await new Promise(r => setTimeout(r, 800));
-        showError('Registration requires Supabase setup (Phase 2A).');
+        // Check handle uniqueness
+        const { data: existing } = await window.supabase
+            .from('profiles')
+            .select('id')
+            .eq('handle', handle)
+            .maybeSingle();
+
+        if (existing) { showError('That username is already taken.'); return; }
+
+        // Sign up
+        const { data, error } = await window.supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { display_name: name, handle: handle } }
+        });
+
+        if (error) {
+            showError(error.message.includes('already registered')
+                ? 'An account with that email already exists.'
+                : error.message);
+            return;
+        }
+
+        showSuccess('Account created! Redirecting…');
+        setTimeout(() => { location.href = 'index.html'; }, 1200);
+
     } catch (err) {
         showError('Something went wrong. Please try again.');
     } finally {

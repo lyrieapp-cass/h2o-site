@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — H2O Writes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .about-hero {
+            text-align: center;
+            padding: var(--gap-2xl) 0 var(--gap-xl);
+        }
+
+        .about-hero__title {
+            font-family: var(--font-brand);
+            font-size: clamp(36px, 7vw, 64px);
+            letter-spacing: 0.04em;
+            color: var(--text);
+            margin-bottom: var(--gap-md);
+            line-height: 1;
+        }
+
+        .about-hero__title span { color: var(--accent); }
+
+        .about-hero__tagline {
+            font-family: var(--font-body);
+            font-size: clamp(16px, 2.5vw, 20px);
+            color: var(--text-muted);
+            font-style: italic;
+            max-width: 540px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .about-divider {
+            width: 48px;
+            height: 2px;
+            background: var(--accent);
+            margin: var(--gap-xl) auto;
+        }
+
+        .about-body {
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .about-body p {
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.9;
+            color: var(--text-muted);
+            margin-bottom: 1.5em;
+        }
+
+        .about-body p strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .about-body p a {
+            color: var(--accent);
+            font-weight: 600;
+            transition: color var(--transition);
+        }
+
+        .about-body p a:hover { color: var(--accent-hover); }
+
+        .about-section-title {
+            font-family: var(--font-ui);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: var(--gap-md);
+            margin-top: var(--gap-2xl);
+        }
+
+        /* Genre tags showcase */
+        .genre-showcase {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--gap-sm);
+            margin: var(--gap-lg) 0;
+        }
+
+        /* Social links */
+        .about-socials {
+            display: flex;
+            gap: var(--gap-md);
+            flex-wrap: wrap;
+            margin-top: var(--gap-lg);
+        }
+
+        .about-social-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px var(--gap-md);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: border-color var(--transition), color var(--transition);
+        }
+
+        .about-social-link:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .about-social-link svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8;
+        }
+
+        /* CTA block */
+        .about-cta {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-md);
+            padding: var(--gap-xl);
+            text-align: center;
+            margin: var(--gap-2xl) 0;
+        }
+
+        .about-cta__title {
+            font-family: var(--font-ui);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: var(--gap-sm);
+        }
+
+        .about-cta__body {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: var(--gap-lg);
+        }
+
+        .about-cta__actions {
+            display: flex;
+            gap: var(--gap-sm);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="icon-chevron-up" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="icon-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+</svg>
+
+<nav class="navbar">
+    <div class="navbar__inner">
+        <a href="index.html" class="navbar__logo brand-text">H2O <span>Writes</span></a>
+        <div class="navbar__nav">
+            <a href="index.html">Home</a>
+            <a href="stories.html">Stories</a>
+            <a href="about.html" class="active">About</a>
+        </div>
+        <div class="navbar__actions">
+            <div class="navbar__search-wrap">
+                <input type="text" class="navbar__search-input" placeholder="Search stories..." maxlength="100">
+                <div class="navbar__search-results"></div>
+                <button class="icon-btn icon-btn--search" aria-label="Search">
+                    <svg><use href="#icon-search"/></svg>
+                </button>
+            </div>
+            <button class="icon-btn" data-theme-toggle aria-label="Toggle theme">
+                <svg><use href="#icon-moon"/></svg>
+            </button>
+            <a href="login.html" class="login-btn" id="nav-login-btn">Log In</a>
+            <div style="position:relative;display:none" id="nav-bell-wrap">
+                <button class="icon-btn icon-btn--bell" aria-label="Notifications">
+                    <svg><use href="#icon-bell"/></svg>
+                    <span class="unread-dot" id="bell-dot" style="display:none"></span>
+                </button>
+            </div>
+            <div style="position:relative;display:none" id="nav-avatar-wrap">
+                <button class="avatar-btn" id="nav-avatar-btn">H</button>
+                <div class="avatar-dropdown" id="avatar-dropdown">
+                    <div class="avatar-dropdown__header">
+                        <div class="avatar-dropdown__name" id="dropdown-name">Reader</div>
+                        <div class="avatar-dropdown__handle" id="dropdown-handle">@handle</div>
+                    </div>
+                    <a href="profile.html" class="avatar-dropdown__item">My Profile</a>
+                    <a href="#" class="avatar-dropdown__item">Bookmarks</a>
+                    <div class="avatar-dropdown__divider"></div>
+                    <button class="avatar-dropdown__item avatar-dropdown__item--danger" id="signout-btn">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="page-body">
+    <div class="container">
+
+        <!-- Hero -->
+        <div class="about-hero">
+            <div class="about-hero__title brand-text">H2O <span>Writes</span></div>
+            <p class="about-hero__tagline">Original stories by givemeaglassofh2o — Keep hydrated y'all!...</p>
+        </div>
+
+        <div class="about-divider"></div>
+
+        <!-- Body -->
+        <div class="about-body">
+
+            <div class="about-section-title">Who is H2O?</div>
+            <p>
+                Hi. I'm <strong>givemeaglassofh2o</strong>, a writer who started posting stories online because I couldn't find the exact kind of story I wanted to read, so I decided to write it myself. LOL. I post under the name H2O because, well, I like water. It's essential. Plus, it reminds me to stay hydrated while I'm writing! :>>
+            </p>
+            <p>
+                I write across genres: romance, drama, fantasy, thriller, a little horror. What they tend to have in common is quietness, characters doing ordinary things in extraordinary circumstances, relationships that develop slowly, and endings that try to earn their weight.
+            </p>
+            <p>
+                I update when I can. I don't abandon stories. If a story is marked <strong>Ongoing</strong>, it is actively being written.
+            </p>
+
+            <div class="about-section-title">What I write</div>
+            <div class="genre-showcase">
+                <span class="badge badge--genre">Romance</span>
+                <span class="badge badge--genre">Drama</span>
+                <span class="badge badge--genre">Fantasy</span>
+                <span class="badge badge--genre">Thriller</span>
+                <span class="badge badge--genre">Mystery</span>
+                <span class="badge badge--genre">Horror</span>
+                <span class="badge badge--genre">Sci-Fi</span>
+            </div>
+            <p>
+                Content warnings are tagged on individual stories where applicable. If a story contains mature themes, violence, or dark content, it will be clearly labeled before you start reading.
+            </p>
+
+            <div class="about-section-title">This site</div>
+            <p>
+                H2O Writes is a personal reading platform built specifically for these stories. No ads. No algorithm. No paywalls. Just the stories, a clean reading experience, and a small community of readers who actually care about my work <3.
+            </p>
+            <p>
+                You can create a free account to bookmark stories, track your reading history, and leave comments on chapters. Accounts are optional — every story is free to read without one.
+            </p>
+
+            <div class="about-section-title">Community</div>
+            <p>
+                Comments are open on all published chapters. I read every single one. The only rules are: be kind, tag your spoilers, and don't be weird about it. Full community guidelines are in the <a href="rules.html">Rules</a> page.
+            </p>
+            <p>
+                All stories on this site are my original work and may not be reproduced, distributed, or reposted elsewhere without permission. See the <a href="terms.html">Terms</a> for details.
+            </p>
+
+            <div class="about-section-title">Find me elsewhere</div>
+            <div class="about-socials">
+                <a href="#" class="about-social-link">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                    TikTok
+                </a>
+                <a href="#" class="about-social-link">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 4l16 16M4 20L20 4"/></svg>
+                    Twitter / X
+                </a>
+                <a href="#" class="about-social-link">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+                    Instagram
+                </a>
+            </div>
+
+            <!-- CTA -->
+            <div class="about-cta">
+                <div class="about-cta__title">Start reading</div>
+                <div class="about-cta__body">All stories are free. No account needed to read.</div>
+                <div class="about-cta__actions">
+                    <a href="stories.html" class="btn btn--primary">Browse Stories</a>
+                    <a href="register.html" class="btn btn--secondary">Create Account</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="footer__inner">
+        <div class="footer__top">
+            <div>
+                <div class="footer__brand brand-text">H2O <span>Writes</span></div>
+                <div class="footer__tagline">Original stories by givemeaglassofh2o</div>
+            </div>
+            <nav class="footer__nav">
+                <a href="index.html">Home</a>
+                <a href="stories.html">Stories</a>
+                <a href="about.html">About</a>
+                <a href="rules.html">Rules</a>
+                <a href="terms.html">Terms</a>
+            </nav>
+            <div class="footer__socials">
+                <a href="#" class="footer__social-link" aria-label="TikTok">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                </a>
+                <a href="#" class="footer__social-link" aria-label="Twitter / X">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 4l16 16M4 20L20 4"/></svg>
+                </a>
+                <a href="#" class="footer__social-link" aria-label="Instagram">
+                    <svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span class="footer__copy">&copy; 2025 H2O Writes. All rights reserved.</span>
+            <div class="footer__links">
+                <a href="rules.html">Community Rules</a>
+                <a href="terms.html">Terms</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<nav class="mobile-nav">
+    <div class="mobile-nav__inner">
+        <button class="mobile-nav__tab" onclick="location.href='index.html'">
+            <svg><use href="#icon-home"/></svg><span>Home</span>
+        </button>
+        <button class="mobile-nav__tab" onclick="location.href='stories.html'">
+            <svg><use href="#icon-grid"/></svg><span>Stories</span>
+        </button>
+        <button class="mobile-nav__tab" onclick="location.href='stories.html#search'">
+            <svg><use href="#icon-search"/></svg><span>Search</span>
+        </button>
+        <button class="mobile-nav__tab" data-auth-required>
+            <svg><use href="#icon-bell"/></svg><span>Notifs</span>
+        </button>
+        <button class="mobile-nav__tab" data-auth-required>
+            <svg><use href="#icon-user"/></svg><span>Profile</span>
+        </button>
+    </div>
+</nav>
+
+<button id="scroll-top-btn" aria-label="Scroll to top">
+    <svg><use href="#icon-chevron-up"/></svg>
+</button>
+
+<script src="js/main.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
