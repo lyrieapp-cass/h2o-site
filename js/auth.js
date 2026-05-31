@@ -26,8 +26,8 @@ function applyAuthUI(user, profile) {
     if (user && profile) {
         // Logged in
         if (loginBtn)     loginBtn.style.display     = 'none';
-        if (bellWrap)     bellWrap.style.display     = 'relative';
-        if (avatarWrap)   avatarWrap.style.display   = 'relative';
+        if (bellWrap)     bellWrap.style.display     = 'flex';
+        if (avatarWrap)   avatarWrap.style.display   = 'flex';
         if (avatarBtn)    avatarBtn.textContent       = profile.display_name.charAt(0).toUpperCase();
         if (dropdownName) dropdownName.textContent    = profile.display_name;
         if (dropdownHandle) dropdownHandle.textContent = '@' + profile.handle;
