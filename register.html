@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — H2O Writes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--gap-xl) var(--gap-lg);
+            background: var(--bg);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .auth-logo {
+            font-family: var(--font-brand);
+            font-size: 32px;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: var(--gap-xl);
+            display: block;
+        }
+
+        .auth-logo span { color: var(--accent); }
+
+        .auth-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--gap-xl);
+        }
+
+        .auth-title {
+            font-family: var(--font-ui);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: var(--gap-xs);
+        }
+
+        .auth-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: var(--gap-xl);
+        }
+
+        .auth-error {
+            background: rgba(224, 92, 92, 0.1);
+            border: 1px solid rgba(224, 92, 92, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--color-danger);
+            margin-bottom: var(--gap-md);
+            display: none;
+        }
+
+        .auth-error.is-visible { display: block; }
+
+        .auth-success {
+            background: rgba(46, 204, 154, 0.1);
+            border: 1px solid rgba(46, 204, 154, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--color-success);
+            margin-bottom: var(--gap-md);
+            display: none;
+        }
+
+        .auth-success.is-visible { display: block; }
+
+        .handle-prefix {
+            position: relative;
+        }
+
+        .handle-prefix .at-sign {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-ghost);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .handle-prefix .form-input {
+            padding-left: 26px;
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: var(--text-ghost);
+            margin-top: 4px;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: var(--gap-lg);
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .auth-footer a {
+            color: var(--accent);
+            font-weight: 600;
+            transition: color var(--transition);
+        }
+
+        .auth-footer a:hover { color: var(--accent-hover); }
+
+        .auth-divider {
+            height: 1px;
+            background: var(--border);
+            margin: var(--gap-lg) 0;
+        }
+
+        .terms-note {
+            font-size: 12px;
+            color: var(--text-ghost);
+            text-align: center;
+            margin-top: var(--gap-md);
+        }
+
+        .terms-note a {
+            color: var(--text-muted);
+            text-decoration: underline;
+        }
+
+        .btn--loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .btn--loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(12,15,19,0.3);
+            border-top-color: #0C0F13;
+            border-radius: 50%;
+            animation: spin 600ms linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Field validation states */
+        .form-input.is-valid {
+            border-color: var(--color-success);
+        }
+
+        .form-input.is-invalid {
+            border-color: var(--color-danger);
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-page">
+    <div class="auth-card">
+
+        <a href="index.html" class="auth-logo brand-text">H2O <span>Writes</span></a>
+
+        <div class="auth-box">
+            <div class="auth-title">Create account</div>
+            <div class="auth-subtitle">Join to comment, bookmark, and track your reading.</div>
+
+            <div class="auth-error" id="register-error"></div>
+            <div class="auth-success" id="register-success"></div>
+
+            <!-- Display name -->
+            <div class="form-group">
+                <label class="form-label" for="reg-name">Display Name</label>
+                <input
+                    type="text"
+                    id="reg-name"
+                    class="form-input"
+                    placeholder="Your Name"
+                    maxlength="40"
+                    autocomplete="name"
+                    required
+                >
+            </div>
+
+            <!-- Username / handle -->
+            <div class="form-group">
+                <label class="form-label" for="reg-handle">Username</label>
+                <div class="handle-prefix">
+                    <span class="at-sign">@</span>
+                    <input
+                        type="text"
+                        id="reg-handle"
+                        class="form-input"
+                        placeholder="username"
+                        maxlength="20"
+                        autocomplete="username"
+                        pattern="[a-zA-Z0-9_]{3,20}"
+                        required
+                    >
+                </div>
+                <div class="input-hint">3–20 characters. Letters, numbers, underscores only.</div>
+                <div class="form-error" id="handle-error" style="display:none"></div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label class="form-label" for="reg-email">Email</label>
+                <input
+                    type="email"
+                    id="reg-email"
+                    class="form-input"
+                    placeholder="your@email.com"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label class="form-label" for="reg-password">Password</label>
+                <input
+                    type="password"
+                    id="reg-password"
+                    class="form-input"
+                    placeholder="Min. 8 characters"
+                    minlength="8"
+                    autocomplete="new-password"
+                    required
+                >
+                <div class="input-hint">Minimum 8 characters.</div>
+            </div>
+
+            <button class="btn btn--primary btn--full" id="register-btn" style="margin-top:var(--gap-sm)">
+                Create Account
+            </button>
+
+            <div class="terms-note">
+                By registering you agree to our <a href="terms.html">Terms</a> and <a href="rules.html">Community Rules</a>.
+            </div>
+
+            <div class="auth-divider"></div>
+
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Log In</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script>
+/* ── Register page logic (wired to Supabase in Phase 2A) ── */
+
+const registerBtn  = document.getElementById('register-btn');
+const nameInput    = document.getElementById('reg-name');
+const handleInput  = document.getElementById('reg-handle');
+const emailInput   = document.getElementById('reg-email');
+const passwordInput= document.getElementById('reg-password');
+const errorEl      = document.getElementById('register-error');
+const successEl    = document.getElementById('register-success');
+const handleErrorEl= document.getElementById('handle-error');
+
+const HANDLE_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
+
+function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add('is-visible');
+    successEl.classList.remove('is-visible');
+}
+
+function showSuccess(msg) {
+    successEl.textContent = msg;
+    successEl.classList.add('is-visible');
+    errorEl.classList.remove('is-visible');
+}
+
+function clearMessages() {
+    errorEl.classList.remove('is-visible');
+    successEl.classList.remove('is-visible');
+}
+
+// Handle live validation
+handleInput.addEventListener('input', function () {
+    const val = this.value.trim();
+    if (!val) {
+        this.classList.remove('is-valid', 'is-invalid');
+        handleErrorEl.style.display = 'none';
+        return;
+    }
+    if (!HANDLE_REGEX.test(val)) {
+        this.classList.add('is-invalid');
+        this.classList.remove('is-valid');
+        handleErrorEl.textContent = 'Letters, numbers, and underscores only. 3–20 characters.';
+        handleErrorEl.style.display = 'block';
+    } else {
+        this.classList.add('is-valid');
+        this.classList.remove('is-invalid');
+        handleErrorEl.style.display = 'none';
+    }
+});
+
+async function handleRegister(e) {
+    e.preventDefault();
+    clearMessages();
+
+    const name     = nameInput.value.trim();
+    const handle   = handleInput.value.trim().toLowerCase();
+    const email    = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    // Client-side validation
+    if (!name) { showError('Please enter a display name.'); return; }
+    if (!HANDLE_REGEX.test(handle)) { showError('Username must be 3–20 characters: letters, numbers, underscores only.'); return; }
+    if (!email) { showError('Please enter your email.'); return; }
+    if (password.length < 8) { showError('Password must be at least 8 characters.'); return; }
+
+    registerBtn.classList.add('btn--loading');
+
+    try {
+        // Phase 2A: replace this block with Supabase auth
+        // 1. Check handle uniqueness against profiles table
+        // 2. supabase.auth.signUp({ email, password })
+        // 3. Insert into profiles table: { id, display_name, handle, created_at }
+        // 4. On success → location.href = 'index.html'
+
+        // Placeholder
+        await new Promise(r => setTimeout(r, 800));
+        showError('Registration requires Supabase setup (Phase 2A).');
+    } catch (err) {
+        showError('Something went wrong. Please try again.');
+    } finally {
+        registerBtn.classList.remove('btn--loading');
+    }
+}
+
+registerBtn.addEventListener('click', handleRegister);
+passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleRegister(e); });
+</script>
+
+</body>
+</html>

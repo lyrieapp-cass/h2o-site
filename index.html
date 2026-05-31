@@ -230,24 +230,19 @@
     <div class="mobile-nav__inner">
         <button class="mobile-nav__tab active" data-page="home" onclick="location.href='index.html'">
             <svg><use href="#icon-home"/></svg>
-            <span>Home</span>
         </button>
         <button class="mobile-nav__tab" data-page="stories" onclick="location.href='stories.html'">
             <svg><use href="#icon-grid"/></svg>
-            <span>Stories</span>
         </button>
         <button class="mobile-nav__tab" data-page="search" onclick="location.href='stories.html#search'">
             <svg><use href="#icon-search"/></svg>
-            <span>Search</span>
         </button>
         <button class="mobile-nav__tab" data-page="notifs" data-auth-required>
             <svg><use href="#icon-bell"/></svg>
             <span class="mobile-nav__unread" id="mobile-unread-dot" style="display:none"></span>
-            <span>Notifs</span>
         </button>
         <button class="mobile-nav__tab" data-page="profile" data-auth-required>
             <svg><use href="#icon-user"/></svg>
-            <span>Profile</span>
         </button>
     </div>
 </nav>
@@ -386,7 +381,7 @@ function buildStoryCard(story, rank) {
 
     const coverContent = story.cover
         ? `<img src="${story.cover}" alt="${escapeHtml(story.title)}" loading="lazy">`
-        : `<div class="cover-title">${escapeHtml(story.title)}</div>`;
+        : ``;
 
     const coverClass = story.cover ? '' : ' is-placeholder';
 

@@ -497,10 +497,8 @@ body {
 .mobile-nav__tab {
     flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
     color: var(--text-ghost);
     cursor: pointer;
     transition: color var(--transition);
@@ -513,8 +511,8 @@ body {
 }
 
 .mobile-nav__tab svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     stroke: currentColor;
     fill: none;
     stroke-width: 1.8;
@@ -523,9 +521,7 @@ body {
 }
 
 .mobile-nav__tab span {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    display: none;
 }
 
 .mobile-nav__unread {
@@ -834,19 +830,21 @@ body {
 /* Cover placeholder (no image) */
 .story-card__cover-wrap.is-placeholder {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
-    padding: var(--gap-sm);
-    background: linear-gradient(160deg, var(--color-reef) 0%, var(--color-deep-slate) 100%);
+    padding: var(--gap-md) var(--gap-sm) 36px;
+    background: linear-gradient(160deg, #1C2530 0%, #141920 100%);
 }
 
 .story-card__cover-wrap.is-placeholder .cover-title {
     font-family: var(--font-brand);
     font-size: clamp(12px, 2.5vw, 16px);
-    color: var(--text);
+    color: #E6ECF2;
     text-align: center;
-    line-height: 1.2;
-    padding-bottom: var(--gap-sm);
+    line-height: 1.3;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 90%;
 }
 
 /* Overlays on cover */
