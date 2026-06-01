@@ -488,108 +488,56 @@
 <script src="js/main.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/stories.js"></script>
 <script>
-/* ── Read page: placeholder data (Supabase in Phase 2) ── */
+/* ── Read page: Phase 2B — live Supabase data ── */
 
-const STORY_DATA = {
-    slug: 'the-tide-between-us',
-    title: 'The Tide Between Us',
-    chapters: [
-        {
-            num: 1, title: 'The First Crossing',
-            authorsNote: 'This chapter was originally going to be told from a different POV. The version here felt truer.',
-            body: `<p>The boat left before sunrise.</p>
-<p>Reina had been told to arrive at the dock by five, and she had arrived at four-forty, bag over her shoulder, standing at the edge of the wooden planks while the water below her moved in slow, dark rolls. She did not know what she was expecting. Something more official, perhaps. A manifest. A briefing. Instead there was just the fisherman, coiling rope in the dark, who looked up at her once and then went back to coiling.</p>
-<p>"You're the scientist," he said. It was not a question.</p>
-<p>"Marine biologist." She put her bag down. "Reina Solano."</p>
-<p>He did not tell her his name. He finished with the rope, kicked something away from the bow with the heel of his foot, and said: "You can sit at the back. Don't lean over the side."</p>
-<p>The reef was forty minutes out. She had read the coordinates so many times she could have said them in her sleep. What she had not expected was the silence — not just the absence of conversation, which was fine, which she preferred — but the quality of it. The engine noise and the water noise and the fact that neither of them spoke created something that felt, strangely, like a kind of agreement.</p>
-<p>The sun came up somewhere around the twenty-minute mark. She was facing forward, watching it happen over the shoulder of the man at the engine, and she thought: I will remember this crossing.</p>
-<p>She did not know yet why.</p>`
-        },
-        {
-            num: 2, title: 'Salt Water Logic',
-            authorsNote: null,
-            body: `<p>The second morning, he told her his name.</p>
-<p>She had not asked. She had catalogued seventeen coral species in four hours and her notes were already running over the margins of the waterproof paper, which meant she needed a new system, which meant she was in a bad mood by the time she climbed back into the boat.</p>
-<p>"Isko," he said, handing her a plastic cup of something hot. "My name."</p>
-<p>"I know how names work," she said, and took the cup.</p>
-<p>It was sweet, milky coffee, the kind that came in sachets, and she drank it in three long swallows because the water was cold and the morning was cold and her hands were already starting to shake.</p>
-<p>"You're not from here," he said.</p>
-<p>"Manila." She handed the cup back. "You?"</p>
-<p>"Born here." He nodded toward the island, which was already a dark line behind them. "My father fished this water. His father before him."</p>
-<p>She looked out at the reef below the surface. The bleached sections were not subtle anymore — she had stopped pretending they were. They spread from the center like something retreating from itself.</p>
-<p>"How long has it been like this?" she asked.</p>
-<p>He was quiet for a moment. "Since I was a boy," he said. "Maybe before. My father said it used to go all the way to the outer break."</p>
-<p>Reina wrote that down.</p>`
-        },
-        {
-            num: 3, title: 'What the Tide Brings', authorsNote: null,
-            body: `<p>She found the notebook on the third day.</p>
-<p>It was wedged under the seat at the front of the boat, water-warped at the edges, the cover gone. She picked it up without thinking and opened it to a page dense with handwriting — not words exactly, more like measurements. Depths. Coordinates. Dates going back twelve years.</p>
-<p>"That's mine." He said it from the stern, not looking up.</p>
-<p>She set it back. "You keep records."</p>
-<p>"Someone should."</p>
-<p>She looked at him for a moment. The government had been collecting data on this reef for four years. She had the reports. They were thorough, carefully formatted, and told her everything she already knew. They had never once mentioned a fisherman with twelve years of depth measurements kept in a water-warped notebook under a boat seat.</p>
-<p>"Can I look at it?" she asked.</p>
-<p>He considered this. "After."</p>
-<p>"After what?"</p>
-<p>"After you tell me what you're actually going to do with your data." He turned the engine down. They drifted. "Not what the report will say. What you think will happen."</p>
-<p>She opened her mouth to say something professional. Then she closed it again.</p>
-<p>"I don't know," she said honestly. "That's the true answer."</p>
-<p>He handed her the notebook.</p>`
-        },
-    ],
-};
+let STORY_INFO = null;
+let ALL_CHAPTERS = [];
 
 function getParams() {
     const p = new URLSearchParams(window.location.search);
-    return { slug: p.get('slug') || STORY_DATA.slug, ch: parseInt(p.get('ch')) || 1 };
+    return { slug: p.get('slug'), ch: parseInt(p.get('ch')) || 1 };
 }
 
-function escapeHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function loadChapter() {
+async function loadChapter() {
     const { slug, ch } = getParams();
-    const story = STORY_DATA;
-    const chapter = story.chapters.find(c => c.num === ch);
+    if (!slug) { location.href = 'stories.html'; return; }
 
+    STORY_INFO = await window.H2O.fetchStory(slug);
+    if (!STORY_INFO) { location.href = '404.html'; return; }
+
+    ALL_CHAPTERS = await window.H2O.fetchChapters(STORY_INFO.id);
+
+    const chapter = await window.H2O.fetchChapter(STORY_INFO.id, ch);
     if (!chapter) {
         document.getElementById('chapter-body').innerHTML = '<p style="color:var(--text-muted)">Chapter not found.</p>';
+        document.getElementById('topbar-story-title').textContent = STORY_INFO.title;
         return;
     }
 
-    // Top bar
-    document.title = `Ch.${String(ch).padStart(2,'0')}: ${chapter.title} — ${story.title}`;
-    document.getElementById('topbar-story-title').textContent = story.title;
+    document.title = `Ch.${String(ch).padStart(2,'0')}: ${chapter.title} — ${STORY_INFO.title}`;
+    document.getElementById('topbar-story-title').textContent   = STORY_INFO.title;
     document.getElementById('topbar-chapter-label').textContent = `Ch.${String(ch).padStart(2,'0')}`;
     document.getElementById('chapter-number-label').textContent = `Chapter ${String(ch).padStart(2,'0')}`;
-    document.getElementById('chapter-heading').textContent = chapter.title;
-
-    // Back button
+    document.getElementById('chapter-heading').textContent      = chapter.title;
     document.getElementById('back-btn').href = `story.html?slug=${slug}`;
 
-    // Author's note
-    if (chapter.authorsNote) {
+    if (chapter.authors_note) {
         document.getElementById('authors-note').style.display = 'block';
-        document.getElementById('authors-note-body').textContent = chapter.authorsNote;
+        document.getElementById('authors-note-body').textContent = chapter.authors_note;
     }
 
-    // Body
     document.getElementById('chapter-body').innerHTML = chapter.body;
 
-    // Chapter nav bar
     const select = document.getElementById('chapter-select');
-    select.innerHTML = story.chapters.map(c =>
-        `<option value="${c.num}" ${c.num === ch ? 'selected' : ''}>Ch.${String(c.num).padStart(2,'0')}: ${c.title}</option>`
+    select.innerHTML = ALL_CHAPTERS.map(c =>
+        `<option value="${c.num}" ${c.num === ch ? 'selected' : ''}>Ch.${String(c.num).padStart(2,'0')}: ${escapeHtml(c.title)}</option>`
     ).join('');
     document.getElementById('nav-bar-title').textContent = chapter.title;
 
-    // Prev / Next
     const hasPrev = ch > 1;
-    const hasNext = ch < story.chapters.length;
+    const hasNext = ch < ALL_CHAPTERS.length;
     const prevUrl = `read.html?slug=${slug}&ch=${ch - 1}`;
     const nextUrl = `read.html?slug=${slug}&ch=${ch + 1}`;
 
@@ -598,56 +546,50 @@ function loadChapter() {
     if (hasPrev) document.getElementById('prev-arrow').onclick = () => location.href = prevUrl;
     if (hasNext) document.getElementById('next-arrow').onclick = () => location.href = nextUrl;
 
-    // Bottom nav buttons
     if (!hasNext) {
         document.getElementById('chapter-end-last').style.display = 'block';
         document.getElementById('back-to-story-btn').href = `story.html?slug=${slug}`;
     } else {
         document.getElementById('chapter-end-regular').style.display = 'flex';
         document.getElementById('next-btn-bottom').href = nextUrl;
-        if (hasPrev) {
-            document.getElementById('prev-btn-bottom').href = prevUrl;
-        } else {
-            document.getElementById('prev-btn-bottom').style.display = 'none';
-        }
+        if (hasPrev) document.getElementById('prev-btn-bottom').href = prevUrl;
+        else document.getElementById('prev-btn-bottom').style.display = 'none';
     }
 
-    // Chapter dropdown jump
     select.addEventListener('change', function () {
         location.href = `read.html?slug=${slug}&ch=${this.value}`;
     });
 
-    // Mark as read
-    const readKey = `h2o-read-${slug}`;
+    const readKey  = `h2o-read-${slug}`;
     const readList = new Set(JSON.parse(localStorage.getItem(readKey) || '[]'));
     readList.add(ch);
     localStorage.setItem(readKey, JSON.stringify([...readList]));
+
+    if (window.H2O?.isLoggedIn?.() && window.supabase) {
+        await window.supabase.from('read_history').upsert({
+            user_id:    window.H2O.user.id,
+            story_id:   STORY_INFO.id,
+            chapter_id: chapter.id,
+            read_at:    new Date().toISOString(),
+        }, { onConflict: 'user_id,chapter_id' });
+    }
 }
 
-// Sticky nav bar hide/show on scroll
 (function () {
-    let lastY = window.scrollY;
-    let ticking = false;
-
+    let lastY = window.scrollY, ticking = false;
     window.addEventListener('scroll', function () {
         if (!ticking) {
             window.requestAnimationFrame(function () {
                 const bar = document.getElementById('chapter-nav-bar');
-                const currentY = window.scrollY;
-                if (currentY > lastY && currentY > 100) {
-                    bar.classList.add('is-hidden');
-                } else {
-                    bar.classList.remove('is-hidden');
-                }
-                lastY = currentY;
-                ticking = false;
+                const y = window.scrollY;
+                bar.classList.toggle('is-hidden', y > lastY && y > 100);
+                lastY = y; ticking = false;
             });
             ticking = true;
         }
     }, { passive: true });
 })();
 
-// Author's note toggle
 document.getElementById('authors-note-toggle').addEventListener('click', function () {
     const body = document.getElementById('authors-note-body');
     const chevron = document.getElementById('note-chevron');
@@ -655,29 +597,19 @@ document.getElementById('authors-note-toggle').addEventListener('click', functio
     chevron.setAttribute('href', body.classList.contains('is-open') ? '#icon-chevron-up' : '#icon-chevron-down');
 });
 
-// Comments toggle
 document.getElementById('comments-toggle-btn').addEventListener('click', function () {
     const body = document.getElementById('comments-body');
-    const chevron = document.getElementById('comments-chevron');
-    body.classList.toggle('is-open');
-    this.querySelector('span') && (this.querySelector('span').textContent = '');
-    chevron.setAttribute('href', body.classList.contains('is-open') ? '#icon-chevron-up' : '#icon-chevron-down');
-    this.childNodes[0] && (this.childNodes[0].textContent = '');
-    // Update label text
-    const label = body.classList.contains('is-open') ? 'Hide Comments' : 'Show Comments';
+    const isOpen = body.classList.toggle('is-open');
     this.innerHTML = `
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-message"/></svg>
-        ${label}
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:auto"><use href="${body.classList.contains('is-open') ? '#icon-chevron-up' : '#icon-chevron-down'}"/></svg>
+        ${isOpen ? 'Hide Comments' : 'Show Comments'}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:auto"><use href="${isOpen ? '#icon-chevron-up' : '#icon-chevron-down'}"/></svg>
     `;
 });
 
-// Settings panel toggle
 document.getElementById('settings-toggle-btn').addEventListener('click', function () {
     document.getElementById('reading-settings-panel').classList.toggle('is-open');
 });
-
-// Close settings on outside click
 document.addEventListener('click', function (e) {
     const panel = document.getElementById('reading-settings-panel');
     const btn = document.getElementById('settings-toggle-btn');
@@ -686,68 +618,25 @@ document.addEventListener('click', function (e) {
     }
 });
 
-// Reading settings
 (function () {
     const area = document.getElementById('reading-area');
     const body = document.getElementById('chapter-body');
-    const STORAGE_KEY = 'h2o-reading-settings';
-
-    function loadSettings() {
+    const KEY = 'h2o-reading-settings';
+    function load() {
         try {
-            const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-            if (s.fontSize) {
-                body.style.fontSize = s.fontSize + 'px';
-                document.getElementById('font-size-slider').value = s.fontSize;
-                document.getElementById('font-size-val').textContent = s.fontSize;
-            }
+            const s = JSON.parse(localStorage.getItem(KEY) || '{}');
+            if (s.fontSize) { body.style.fontSize = s.fontSize + 'px'; document.getElementById('font-size-slider').value = s.fontSize; document.getElementById('font-size-val').textContent = s.fontSize; }
             if (s.font) applyFont(s.font, false);
             if (s.spacing) applySpacing(s.spacing, false);
-        } catch (e) {}
+        } catch(e) {}
     }
-
-    function saveSettings(key, val) {
-        try {
-            const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-            s[key] = val;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-        } catch (e) {}
-    }
-
-    function applyFont(font, save = true) {
-        area.classList.toggle('font-dm', font === 'dm');
-        document.querySelectorAll('[data-font]').forEach(b => {
-            b.classList.toggle('is-active', b.dataset.font === font);
-        });
-        if (save) saveSettings('font', font);
-    }
-
-    function applySpacing(spacing, save = true) {
-        area.className = area.className.replace(/spacing-\w+/g, '').trim();
-        if (spacing !== 'comfortable') area.classList.add('spacing-' + spacing);
-        document.querySelectorAll('[data-spacing]').forEach(b => {
-            b.classList.toggle('is-active', b.dataset.spacing === spacing);
-        });
-        if (save) saveSettings('spacing', spacing);
-    }
-
-    // Font size slider
-    document.getElementById('font-size-slider').addEventListener('input', function () {
-        body.style.fontSize = this.value + 'px';
-        document.getElementById('font-size-val').textContent = this.value;
-        saveSettings('fontSize', parseInt(this.value));
-    });
-
-    // Font toggle
-    document.querySelectorAll('[data-font]').forEach(btn => {
-        btn.addEventListener('click', function () { applyFont(this.dataset.font); });
-    });
-
-    // Spacing toggle
-    document.querySelectorAll('[data-spacing]').forEach(btn => {
-        btn.addEventListener('click', function () { applySpacing(this.dataset.spacing); });
-    });
-
-    loadSettings();
+    function save(k, v) { try { const s = JSON.parse(localStorage.getItem(KEY)||'{}'); s[k]=v; localStorage.setItem(KEY,JSON.stringify(s)); } catch(e){} }
+    function applyFont(f, sv=true) { area.classList.toggle('font-dm', f==='dm'); document.querySelectorAll('[data-font]').forEach(b=>b.classList.toggle('is-active',b.dataset.font===f)); if(sv) save('font',f); }
+    function applySpacing(sp, sv=true) { area.className=area.className.replace(/spacing-\w+/g,'').trim(); if(sp!=='comfortable') area.classList.add('spacing-'+sp); document.querySelectorAll('[data-spacing]').forEach(b=>b.classList.toggle('is-active',b.dataset.spacing===sp)); if(sv) save('spacing',sp); }
+    document.getElementById('font-size-slider').addEventListener('input', function () { body.style.fontSize=this.value+'px'; document.getElementById('font-size-val').textContent=this.value; save('fontSize',parseInt(this.value)); });
+    document.querySelectorAll('[data-font]').forEach(btn => btn.addEventListener('click', function() { applyFont(this.dataset.font); }));
+    document.querySelectorAll('[data-spacing]').forEach(btn => btn.addEventListener('click', function() { applySpacing(this.dataset.spacing); }));
+    load();
 })();
 
 document.addEventListener('DOMContentLoaded', loadChapter);

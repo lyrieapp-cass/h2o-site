@@ -331,36 +331,16 @@
 <script src="js/main.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/stories.js"></script>
 <script>
-/* ── Story page: placeholder data (Supabase in Phase 2) ── */
+/* ── Story page: Phase 2B — live Supabase data ── */
 
-const PLACEHOLDER_STORY = {
-    slug: 'the-tide-between-us',
-    title: 'The Tide Between Us',
-    cover: null,
-    status: 'ongoing',
-    genre: ['Romance', 'Drama'],
-    warnings: [],
-    year: 2025,
-    synopsis: `Two strangers. One island. A summer neither of them expected.\n\nWhen marine biologist Reina Solano is sent to document a dying coral reef off the coast of Palawan, the last thing she needs is a distraction. But the fisherman who rows her out every morning has a way of asking questions she doesn't know how to answer.\n\nA quiet story about water, silence, and the things we carry out to sea.`,
-    views: 8420,
-    hearts: 310,
-    comments: 47,
-    chapters: [
-        { num: 1,  title: 'The First Crossing',      date: '2025-01-10', published: true },
-        { num: 2,  title: 'Salt Water Logic',         date: '2025-01-17', published: true },
-        { num: 3,  title: 'What the Tide Brings',     date: '2025-01-24', published: true },
-        { num: 4,  title: 'Low Water',                date: '2025-02-01', published: true },
-        { num: 5,  title: 'The Reef at Dusk',         date: '2025-02-08', published: true },
-        { num: 6,  title: 'Names for Things',         date: '2025-02-15', published: true },
-        { num: 7,  title: 'Undertow',                 date: '2025-03-01', published: true },
-        { num: 8,  title: 'Storm Season',             date: '2025-03-15', published: true },
-        { num: 9,  title: 'After the Rain',           date: '2025-04-02', published: true },
-        { num: 10, title: 'Depth',                    date: '2025-04-20', published: true },
-        { num: 11, title: 'The Last Survey',          date: '2025-05-10', published: true },
-        { num: 12, title: 'Everything the Water Kept',date: '2025-05-28', published: true },
-    ],
-};
+let CURRENT_STORY    = null;
+let CURRENT_CHAPTERS = [];
+
+function getSlug() {
+    return new URLSearchParams(window.location.search).get('slug');
+}
 
 function isNew(dateStr) {
     return (new Date() - new Date(dateStr)) / 86400000 <= 7;
@@ -370,26 +350,37 @@ function formatDate(dateStr) {
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function requireAuth(el) {
+function requireAuth() {
     if (!window.H2O?.isLoggedIn?.()) {
         document.getElementById('auth-gate-modal').classList.add('is-open');
     }
 }
 
-function loadStory() {
-    const s = PLACEHOLDER_STORY;
+async function loadStory() {
+    const slug = getSlug();
+    if (!slug) { location.href = 'stories.html'; return; }
+
+    const s = await window.H2O.fetchStory(slug);
+    if (!s) { location.href = '404.html'; return; }
+
+    CURRENT_STORY = s;
 
     document.title = `${s.title} — H2O Writes`;
     document.getElementById('breadcrumb-title').textContent = s.title;
-    document.getElementById('story-title').textContent = s.title;
-    document.getElementById('story-year').textContent = `Published ${s.year}`;
-    document.getElementById('heart-count').textContent = s.hearts.toLocaleString();
-    document.getElementById('view-count').textContent = s.views.toLocaleString();
-    document.getElementById('comment-count').textContent = s.comments.toLocaleString();
+    document.getElementById('story-title').textContent      = s.title;
+    document.getElementById('story-year').textContent       = `Published ${new Date(s.created_at).getFullYear()}`;
+    document.getElementById('view-count').textContent       = (s.views || 0).toLocaleString();
+
+    // Heart count
+    const hearts = await window.H2O.fetchHeartCount(s.id);
+    document.getElementById('heart-count').textContent = hearts.toLocaleString();
+
+    // Increment views
+    window.H2O.incrementViews(s.id);
 
     // Cover
-    if (s.cover) {
-        document.getElementById('story-cover-img').src = s.cover;
+    if (s.cover_url) {
+        document.getElementById('story-cover-img').src           = s.cover_url;
         document.getElementById('story-cover-img').style.display = 'block';
         document.getElementById('story-cover-placeholder').style.display = 'none';
     } else {
@@ -397,74 +388,93 @@ function loadStory() {
     }
 
     // Tags
-    const tagsEl = document.getElementById('story-tags');
+    const tagsEl      = document.getElementById('story-tags');
     const statusClass = s.status === 'completed' ? 'badge--status-completed' : 'badge--status-ongoing';
     const statusLabel = s.status === 'completed' ? 'Completed' : 'Ongoing';
-    tagsEl.innerHTML = `<span class="badge ${statusClass}">${statusLabel}</span>` +
-        s.genre.map(g => `<span class="badge badge--genre">${g}</span>`).join('') +
-        s.warnings.map(w => `<span class="badge badge--warning">${w}</span>`).join('');
+    tagsEl.innerHTML  =
+        `<span class="badge ${statusClass}">${statusLabel}</span>` +
+        (s.genre    || []).map(g => `<span class="badge badge--genre">${escapeHtml(g)}</span>`).join('') +
+        (s.warnings || []).map(w => `<span class="badge badge--warning">${escapeHtml(w)}</span>`).join('');
 
     // Synopsis
-    const synEl = document.getElementById('synopsis-text');
-    synEl.textContent = s.synopsis;
+    const synEl    = document.getElementById('synopsis-text');
     const toggleBtn = document.getElementById('synopsis-toggle');
-    // Check if clamped
+    synEl.textContent = s.synopsis || 'No synopsis yet.';
     setTimeout(() => {
-        if (synEl.scrollHeight > synEl.clientHeight + 2) {
-            toggleBtn.style.display = 'inline-block';
-        }
+        if (synEl.scrollHeight > synEl.clientHeight + 2) toggleBtn.style.display = 'inline-block';
     }, 50);
-
     toggleBtn.addEventListener('click', function () {
         synEl.classList.toggle('is-expanded');
         this.textContent = synEl.classList.contains('is-expanded') ? 'View less' : 'View more';
     });
 
-    // Start reading link
-    document.getElementById('start-reading-btn').href = `read.html?slug=${s.slug}&ch=1`;
+    // Start reading
+    document.getElementById('start-reading-btn').href = `read.html?slug=${slug}&ch=1`;
+
+    // Heart button
+    const heartBtn = document.getElementById('heart-btn');
+    if (heartBtn) {
+        heartBtn.onclick = async () => {
+            if (!window.H2O?.isLoggedIn?.()) { requireAuth(); return; }
+            const userId = window.H2O.user.id;
+            const isHearted = heartBtn.classList.contains('is-hearted');
+            if (isHearted) {
+                await window.supabase.from('hearts').delete().eq('user_id', userId).eq('story_id', s.id);
+                heartBtn.classList.remove('is-hearted');
+                document.getElementById('heart-count').textContent = (hearts - 1).toLocaleString();
+            } else {
+                await window.supabase.from('hearts').insert({ user_id: userId, story_id: s.id });
+                heartBtn.classList.add('is-hearted');
+                document.getElementById('heart-count').textContent = (hearts + 1).toLocaleString();
+            }
+        };
+
+        // Check if already hearted
+        if (window.H2O?.isLoggedIn?.()) {
+            const { data } = await window.supabase.from('hearts')
+                .select('id').eq('user_id', window.H2O.user.id).eq('story_id', s.id).maybeSingle();
+            if (data) heartBtn.classList.add('is-hearted');
+        }
+    }
 
     // Chapters
+    CURRENT_CHAPTERS = await window.H2O.fetchChapters(s.id);
     renderChapters('order');
 }
 
 function renderChapters(sort) {
-    const s = PLACEHOLDER_STORY;
-    const list = document.getElementById('chapter-list');
+    const list  = document.getElementById('chapter-list');
     const empty = document.getElementById('chapters-empty');
-    const published = s.chapters.filter(c => c.published);
 
-    if (published.length === 0) {
+    if (!CURRENT_CHAPTERS.length) {
         list.innerHTML = '';
         empty.style.display = 'block';
         return;
     }
 
     empty.style.display = 'none';
+    const slug   = getSlug();
+    const readSet = new Set(JSON.parse(localStorage.getItem(`h2o-read-${slug}`) || '[]'));
 
-    const sorted = [...published].sort((a, b) =>
+    const sorted = [...CURRENT_CHAPTERS].sort((a, b) =>
         sort === 'date'
-            ? new Date(b.date) - new Date(a.date)
+            ? new Date(b.published_at) - new Date(a.published_at)
             : a.num - b.num
     );
 
-    // Read history from localStorage
-    const readSet = new Set(JSON.parse(localStorage.getItem(`h2o-read-${s.slug}`) || '[]'));
-
     list.innerHTML = sorted.map(c => {
-        const read = readSet.has(c.num);
-        const newBadge = isNew(c.date) ? '<span class="badge badge--new" style="font-size:10px">NEW</span>' : '';
-        const checkmark = read
-            ? `<svg class="read-check-icon" viewBox="0 0 24 24"><use href="#icon-check"/></svg>`
-            : '';
+        const read     = readSet.has(c.num);
+        const newBadge = isNew(c.published_at) ? '<span class="badge badge--new" style="font-size:10px">NEW</span>' : '';
+        const checkmark = read ? `<svg class="read-check-icon" viewBox="0 0 24 24"><use href="#icon-check"/></svg>` : '';
         return `
-            <a class="chapter-row ${read ? 'is-read' : ''}" href="read.html?slug=${s.slug}&ch=${c.num}">
+            <a class="chapter-row ${read ? 'is-read' : ''}" href="read.html?slug=${slug}&ch=${c.num}">
                 <div class="chapter-row__left">
                     <span class="chapter-row__num">Ch.${String(c.num).padStart(2,'0')}</span>
                     <span class="chapter-row__title">${escapeHtml(c.title)}</span>
                     ${newBadge}
                 </div>
                 <div class="chapter-row__right">
-                    <span class="chapter-row__date">${formatDate(c.date)}</span>
+                    <span class="chapter-row__date">${formatDate(c.published_at)}</span>
                     ${checkmark}
                 </div>
             </a>
@@ -483,7 +493,7 @@ document.querySelectorAll('.sort-btn').forEach(btn => {
 
 // Comments toggle
 document.getElementById('comments-toggle-btn').addEventListener('click', function () {
-    const body = document.getElementById('comments-body');
+    const body    = document.getElementById('comments-body');
     const chevron = document.getElementById('comments-chevron');
     body.classList.toggle('is-open');
     chevron.setAttribute('href', body.classList.contains('is-open') ? '#icon-chevron-up' : '#icon-chevron-down');

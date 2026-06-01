@@ -303,18 +303,23 @@
     <div class="mobile-nav__inner">
         <button class="mobile-nav__tab" data-page="home" onclick="location.href='index.html'">
             <svg><use href="#icon-home"/></svg>
+            <span>Home</span>
         </button>
         <button class="mobile-nav__tab active" data-page="stories" onclick="location.href='stories.html'">
             <svg><use href="#icon-grid"/></svg>
+            <span>Stories</span>
         </button>
         <button class="mobile-nav__tab active" data-page="search">
             <svg><use href="#icon-search"/></svg>
+            <span>Search</span>
         </button>
         <button class="mobile-nav__tab" data-page="notifs" data-auth-required>
             <svg><use href="#icon-bell"/></svg>
+            <span>Notifs</span>
         </button>
         <button class="mobile-nav__tab" data-page="profile" data-auth-required>
             <svg><use href="#icon-user"/></svg>
+            <span>Profile</span>
         </button>
     </div>
 </nav>
@@ -340,159 +345,46 @@
 <script src="js/main.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/stories.js"></script>
 <script>
-/* ── Stories Library: Static placeholder data (replaced by Supabase in Phase 2) ── */
+/* ── Stories page: Phase 2B — live Supabase data ── */
 
-const ALL_STORIES = [
-    {
-        slug: 'the-tide-between-us',
-        title: 'The Tide Between Us',
-        cover: null,
-        status: 'ongoing',
-        genre: ['Romance', 'Drama'],
-        warnings: [],
-        latest_chapter: 12,
-        updated: '2025-05-28',
-        views: 8420,
-        hearts: 310,
-    },
-    {
-        slug: 'salt-and-silence',
-        title: 'Salt and Silence',
-        cover: null,
-        status: 'completed',
-        genre: ['Thriller'],
-        warnings: ['Dark Themes'],
-        latest_chapter: 24,
-        updated: '2025-05-20',
-        views: 5100,
-        hearts: 180,
-    },
-    {
-        slug: 'deep-current',
-        title: 'Deep Current',
-        cover: null,
-        status: 'ongoing',
-        genre: ['Fantasy'],
-        warnings: ['Violence'],
-        latest_chapter: 7,
-        updated: '2025-05-29',
-        views: 3300,
-        hearts: 95,
-    },
-    {
-        slug: 'glass-harbor',
-        title: 'Glass Harbor',
-        cover: null,
-        status: 'ongoing',
-        genre: ['Mystery'],
-        warnings: [],
-        latest_chapter: 5,
-        updated: '2025-05-27',
-        views: 2100,
-        hearts: 60,
-    },
-    {
-        slug: 'undertow',
-        title: 'Undertow',
-        cover: null,
-        status: 'completed',
-        genre: ['Horror'],
-        warnings: ['Mature', 'Dark Themes'],
-        latest_chapter: 18,
-        updated: '2025-04-10',
-        views: 4700,
-        hearts: 220,
-    },
-    {
-        slug: 'aqua-nova',
-        title: 'Aqua Nova',
-        cover: null,
-        status: 'ongoing',
-        genre: ['Sci-Fi'],
-        warnings: [],
-        latest_chapter: 3,
-        updated: '2025-05-30',
-        views: 890,
-        hearts: 22,
-    },
-];
+let ALL_STORIES = [];
 
-// Expose for navbar live search
-window.H2O_STORIES = ALL_STORIES.map(s => ({ title: s.title, slug: s.slug, cover: s.cover }));
+async function initStories() {
+    ALL_STORIES = await window.H2O.fetchStories();
+    window.H2O_STORIES = ALL_STORIES.map(s => ({ title: s.title, slug: s.slug, cover: s.cover_url }));
+    renderStories();
 
-function isNewChapter(dateStr) {
-    const d = new Date(dateStr);
-    const now = new Date();
-    return (now - d) / (1000 * 60 * 60 * 24) <= 7;
-}
-
-function timeAgo(dateStr) {
-    const d = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-function buildCard(story) {
-    const isNew = isNewChapter(story.updated);
-    const statusClass = story.status === 'completed' ? 'badge--status-completed' : 'badge--status-ongoing';
-    const statusLabel = story.status === 'completed' ? 'Completed' : 'Ongoing';
-    const coverContent = story.cover
-        ? `<img src="${story.cover}" alt="${escapeHtml(story.title)}" loading="lazy">`
-        : ``;
-    const coverClass = story.cover ? '' : ' is-placeholder';
-
-    return `
-        <a class="story-card" href="story.html?slug=${story.slug}">
-            <div class="story-card__cover-wrap${coverClass}">
-                ${coverContent}
-                <span class="badge ${statusClass} story-card__badge-bl">${statusLabel}</span>
-                <button class="quick-bookmark-btn story-card__badge-tr" aria-label="Bookmark" onclick="event.preventDefault(); event.stopPropagation();">
-                    <svg viewBox="0 0 24 24"><use href="#icon-bookmark"/></svg>
-                </button>
-                ${isNew ? '<span class="badge badge--new" style="position:absolute;top:8px;right:36px">NEW</span>' : ''}
-            </div>
-            <div class="story-card__meta">
-                <div class="story-card__chapter">
-                    Ch.${String(story.latest_chapter).padStart(2,'0')}
-                    <span style="margin-left:auto;font-weight:400;font-size:11px;color:var(--text-ghost)">${timeAgo(story.updated)}</span>
-                </div>
-                <div class="story-card__title">${escapeHtml(story.title)}</div>
-            </div>
-        </a>
-    `;
+    if (window.location.hash === '#search') {
+        document.getElementById('stories-search').focus();
+    }
 }
 
 function getFilters() {
     return {
-        query: document.getElementById('stories-search').value.trim().toLowerCase(),
-        genre: document.getElementById('filter-genre').value,
-        status: document.getElementById('filter-status').value,
+        query:   document.getElementById('stories-search').value.trim().toLowerCase(),
+        genre:   document.getElementById('filter-genre').value,
+        status:  document.getElementById('filter-status').value,
         warning: document.getElementById('filter-warning').value,
     };
 }
 
 function renderStories() {
     const { query, genre, status, warning } = getFilters();
-    const grid = document.getElementById('stories-grid');
+    const grid  = document.getElementById('stories-grid');
     const empty = document.getElementById('stories-empty');
     const count = document.getElementById('results-count');
 
     let filtered = ALL_STORIES.filter(s => {
-        if (query && !s.title.toLowerCase().includes(query)) return false;
-        if (genre && !s.genre.includes(genre)) return false;
-        if (status && s.status !== status) return false;
-        if (warning && (!s.warnings || !s.warnings.includes(warning))) return false;
+        if (query  && !s.title.toLowerCase().includes(query)) return false;
+        if (genre  && !(s.genre || []).includes(genre))        return false;
+        if (status && s.status !== status)                     return false;
+        if (warning && !(s.warnings || []).includes(warning))  return false;
         return true;
     });
 
-    // Sort by most recently updated
-    filtered.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+    filtered.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
     if (filtered.length === 0) {
         grid.innerHTML = '';
@@ -500,11 +392,10 @@ function renderStories() {
         count.textContent = '';
     } else {
         empty.style.display = 'none';
-        grid.innerHTML = filtered.map(buildCard).join('');
+        grid.innerHTML = filtered.map(s => window.H2O.buildStoryCard(s, 0)).join('');
         count.textContent = `${filtered.length} ${filtered.length === 1 ? 'story' : 'stories'}`;
     }
 
-    // Update filter select visual state
     ['filter-genre', 'filter-status', 'filter-warning'].forEach(id => {
         const el = document.getElementById(id);
         el.classList.toggle('is-active', el.value !== '');
@@ -512,17 +403,11 @@ function renderStories() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    renderStories();
-
+    initStories();
     document.getElementById('stories-search').addEventListener('input', renderStories);
     document.getElementById('filter-genre').addEventListener('change', renderStories);
     document.getElementById('filter-status').addEventListener('change', renderStories);
     document.getElementById('filter-warning').addEventListener('change', renderStories);
-
-    // If landing from mobile search tab, focus the search input
-    if (window.location.hash === '#search') {
-        document.getElementById('stories-search').focus();
-    }
 });
 </script>
 
