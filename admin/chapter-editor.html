@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter Editor — H2O Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: var(--gap-xl);
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .editor-layout { grid-template-columns: 1fr; }
+        }
+
+        .editor-main {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-md);
+        }
+
+        /* Toolbar */
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            padding: var(--gap-sm);
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        }
+
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: none;
+            font-family: var(--font-ui);
+            font-size: 13px;
+            font-weight: 600;
+            transition: background var(--transition), color var(--transition), border-color var(--transition);
+        }
+
+        .toolbar-btn:hover {
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .toolbar-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        /* Content editable area */
+        .editor-content {
+            min-height: 500px;
+            padding: var(--gap-xl);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.9;
+            color: var(--text);
+            outline: none;
+            overflow-y: auto;
+        }
+
+        .editor-content:focus {
+            border-color: var(--accent);
+        }
+
+        .editor-content p { margin-bottom: 1em; }
+        .editor-content p:last-child { margin-bottom: 0; }
+
+        .editor-content[data-placeholder]:empty::before {
+            content: attr(data-placeholder);
+            color: var(--text-ghost);
+            pointer-events: none;
+        }
+
+        /* Sidebar */
+        .editor-sidebar {
+            position: sticky;
+            top: var(--gap-xl);
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-md);
+        }
+
+        .sidebar-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--gap-lg);
+        }
+
+        .sidebar-card__title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: var(--gap-md);
+        }
+
+        /* Word count */
+        .word-count {
+            font-size: 12px;
+            color: var(--text-ghost);
+            margin-top: var(--gap-sm);
+            text-align: right;
+        }
+
+        /* Save status */
+        .save-status {
+            font-size: 12px;
+            color: var(--text-ghost);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .save-status.is-saved   { color: var(--color-success); }
+        .save-status.is-saving  { color: var(--text-muted); }
+        .save-status.is-error   { color: var(--color-danger); }
+    </style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-bold" viewBox="0 0 24 24"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></symbol>
+    <symbol id="icon-italic" viewBox="0 0 24 24"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></symbol>
+    <symbol id="icon-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="icon-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+    <symbol id="icon-quote" viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></symbol>
+    <symbol id="icon-separator" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+</svg>
+
+<div style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 var(--gap-xl);height:56px;display:flex;align-items:center;gap:var(--gap-md);position:sticky;top:0;z-index:50">
+    <a href="#" id="back-to-chapters" class="btn btn--ghost btn--sm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-arrow-left"/></svg>
+        Chapters
+    </a>
+    <div style="font-size:14px;font-weight:600;color:var(--text)" id="editor-story-title"></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:var(--gap-md)">
+        <div class="save-status" id="save-status"></div>
+        <button class="btn btn--ghost btn--sm" id="save-draft-btn">Save Draft</button>
+        <button class="btn btn--primary btn--sm" id="publish-btn">Publish</button>
+    </div>
+</div>
+
+<div style="padding:var(--gap-xl);max-width:1100px;margin:0 auto">
+    <div class="editor-layout">
+
+        <!-- Main editor -->
+        <div class="editor-main">
+
+            <div class="form-group" style="margin-bottom:0">
+                <input type="text" id="chapter-title" class="form-input"
+                    placeholder="Chapter title…"
+                    style="font-size:18px;font-weight:700;padding:12px 16px">
+            </div>
+
+            <div class="form-group" style="margin-bottom:0">
+                <textarea id="authors-note" class="form-textarea" rows="2"
+                    placeholder="Author's note (optional)…"
+                    style="font-size:13px;resize:none"></textarea>
+            </div>
+
+            <!-- Toolbar -->
+            <div>
+                <div class="editor-toolbar">
+                    <button class="toolbar-btn" title="Bold" onclick="fmt('bold')"><svg><use href="#icon-bold"/></svg></button>
+                    <button class="toolbar-btn" title="Italic" onclick="fmt('italic')"><svg><use href="#icon-italic"/></svg></button>
+                    <div class="toolbar-divider"></div>
+                    <button class="toolbar-btn" title="Insert blockquote" onclick="insertQuote()"><svg><use href="#icon-quote"/></svg></button>
+                    <button class="toolbar-btn" title="Insert scene break (***)" onclick="insertBreak()">—</button>
+                    <div class="toolbar-divider"></div>
+                    <button class="toolbar-btn" title="New paragraph" onclick="insertParagraph()">¶</button>
+                </div>
+
+                <div
+                    class="editor-content"
+                    id="editor-content"
+                    contenteditable="true"
+                    data-placeholder="Start writing your chapter here…"
+                ></div>
+
+                <div class="word-count" id="word-count">0 words</div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="editor-sidebar">
+
+            <div class="sidebar-card">
+                <div class="sidebar-card__title">Chapter Info</div>
+                <div class="form-group">
+                    <label class="form-label">Chapter Number</label>
+                    <input type="number" id="chapter-num" class="form-input" min="1" value="1">
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Status</label>
+                    <div style="font-size:13px;padding:8px 0" id="chapter-status-display">
+                        <span class="badge badge--warning">Draft</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-card__title">Actions</div>
+                <div style="display:flex;flex-direction:column;gap:var(--gap-sm)">
+                    <button class="btn btn--secondary btn--full" id="save-draft-btn-2">Save as Draft</button>
+                    <button class="btn btn--primary btn--full" id="publish-btn-2">Publish Chapter</button>
+                    <button class="btn btn--ghost btn--full" id="unpublish-btn" style="display:none">Unpublish</button>
+                </div>
+                <div style="margin-top:var(--gap-md);font-size:12px;color:var(--text-ghost);line-height:1.6">
+                    Drafts are only visible to you. Published chapters are visible to all readers.
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-card__title">Preview</div>
+                <a href="#" class="btn btn--ghost btn--full btn--sm" id="preview-btn" target="_blank">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
+                    Preview Chapter
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+const params     = new URLSearchParams(window.location.search);
+const STORY_ID   = params.get('story');
+const CHAPTER_ID = params.get('chapter');
+const STORY_TITLE = decodeURIComponent(params.get('title') || 'Story');
+
+let isPublished = false;
+let storySlug   = '';
+
+function waitForSupabase() {
+    return new Promise(resolve => {
+        if (window.supabase && window.supabase.from) return resolve();
+        window.addEventListener('supabase-ready', resolve, { once: true });
+    });
+}
+
+// UI refs
+const titleInput   = document.getElementById('chapter-title');
+const noteInput    = document.getElementById('authors-note');
+const numInput     = document.getElementById('chapter-num');
+const editorEl     = document.getElementById('editor-content');
+const wordCountEl  = document.getElementById('word-count');
+const saveStatus   = document.getElementById('save-status');
+
+document.getElementById('editor-story-title').textContent = STORY_TITLE;
+document.getElementById('back-to-chapters').href = `chapters.html?story=${STORY_ID}&title=${encodeURIComponent(STORY_TITLE)}`;
+
+// Formatting
+function fmt(cmd) { document.execCommand(cmd, false, null); editorEl.focus(); }
+function insertQuote() {
+    const q = document.createElement('blockquote');
+    q.style.cssText = 'border-left:3px solid var(--accent);padding-left:16px;margin:16px 0;color:var(--text-muted);font-style:italic';
+    q.textContent = 'Quote text…';
+    const sel = window.getSelection();
+    if (sel.rangeCount) { const r = sel.getRangeAt(0); r.deleteContents(); r.insertNode(q); }
+    editorEl.focus();
+}
+function insertBreak() {
+    document.execCommand('insertHTML', false, '<p style="text-align:center;letter-spacing:0.3em;color:var(--text-ghost)">* * *</p><p><br></p>');
+    editorEl.focus();
+}
+function insertParagraph() {
+    document.execCommand('insertParagraph', false, null);
+    editorEl.focus();
+}
+
+// Word count
+editorEl.addEventListener('input', function () {
+    const text  = this.innerText || '';
+    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    wordCountEl.textContent = `${words.toLocaleString()} word${words !== 1 ? 's' : ''}`;
+});
+
+// Status display
+function setStatus(published) {
+    isPublished = published;
+    const el = document.getElementById('chapter-status-display');
+    el.innerHTML = published
+        ? '<span class="badge badge--status-ongoing">Published</span>'
+        : '<span class="badge badge--warning">Draft</span>';
+    document.getElementById('unpublish-btn').style.display = published ? 'block' : 'none';
+}
+
+// Set save status message
+function setSaveStatus(state, msg) {
+    saveStatus.className = 'save-status ' + (state ? 'is-' + state : '');
+    saveStatus.textContent = msg;
+}
+
+// Get HTML from editor
+function getBodyHTML() {
+    // Wrap loose text nodes in <p> tags
+    const div  = document.createElement('div');
+    div.innerHTML = editorEl.innerHTML;
+    div.querySelectorAll('b').forEach(el => { const s = document.createElement('strong'); s.innerHTML = el.innerHTML; el.replaceWith(s); });
+    div.querySelectorAll('i').forEach(el => { const s = document.createElement('em'); s.innerHTML = el.innerHTML; el.replaceWith(s); });
+    return div.innerHTML;
+}
+
+// Load existing chapter if editing
+async function loadChapter() {
+    await waitForSupabase();
+
+    // Get story slug for preview link
+    const { data: story } = await window.supabase.from('stories').select('slug').eq('id', STORY_ID).single();
+    if (story) storySlug = story.slug;
+
+    if (!CHAPTER_ID) {
+        // New chapter — auto-set chapter number
+        const { data: existing } = await window.supabase
+            .from('chapters').select('num').eq('story_id', STORY_ID).order('num', { ascending: false }).limit(1);
+        if (existing && existing.length) numInput.value = existing[0].num + 1;
+        return;
+    }
+
+    const { data } = await window.supabase.from('chapters').select('*').eq('id', CHAPTER_ID).single();
+    if (!data) return;
+
+    titleInput.value      = data.title;
+    noteInput.value       = data.authors_note || '';
+    numInput.value        = data.num;
+    editorEl.innerHTML    = data.body;
+    setStatus(data.published);
+
+    // Trigger word count
+    editorEl.dispatchEvent(new Event('input'));
+
+    // Preview link
+    if (storySlug) {
+        document.getElementById('preview-btn').href = `../read.html?slug=${storySlug}&ch=${data.num}`;
+    }
+}
+
+async function save(publish) {
+    const title = titleInput.value.trim();
+    const body  = getBodyHTML();
+    const num   = parseInt(numInput.value) || 1;
+    const note  = noteInput.value.trim();
+
+    if (!title) { alert('Please enter a chapter title.'); return; }
+    if (!body || editorEl.innerText.trim().length < 10) { alert('Chapter body is too short.'); return; }
+
+    setSaveStatus('saving', 'Saving…');
+    await waitForSupabase();
+
+    const payload = {
+        story_id:     STORY_ID,
+        num,
+        title,
+        body,
+        authors_note: note || null,
+        published:    publish,
+        published_at: publish ? new Date().toISOString() : null,
+    };
+
+    let error, data;
+    if (CHAPTER_ID) {
+        ({ error, data } = await window.supabase.from('chapters').update(payload).eq('id', CHAPTER_ID).select().single());
+    } else {
+        ({ error, data } = await window.supabase.from('chapters').insert(payload).select().single());
+        if (!error && data) {
+            // Update URL so refreshing doesn't create a duplicate
+            const newUrl = `chapter-editor.html?story=${STORY_ID}&chapter=${data.id}&title=${encodeURIComponent(STORY_TITLE)}`;
+            window.history.replaceState({}, '', newUrl);
+        }
+    }
+
+    if (error) {
+        setSaveStatus('error', 'Error saving');
+        alert('Error: ' + error.message);
+        return;
+    }
+
+    setStatus(publish);
+    setSaveStatus('saved', publish ? 'Published ✓' : 'Saved ✓');
+
+    // Update story updated_at
+    await window.supabase.from('stories').update({ updated_at: new Date().toISOString() }).eq('id', STORY_ID);
+
+    if (storySlug && publish) {
+        document.getElementById('preview-btn').href = `../read.html?slug=${storySlug}&ch=${payload.num}`;
+    }
+
+    setTimeout(() => setSaveStatus('', ''), 3000);
+}
+
+async function unpublish() {
+    if (!CHAPTER_ID) return;
+    setSaveStatus('saving', 'Unpublishing…');
+    await waitForSupabase();
+    await window.supabase.from('chapters').update({ published: false, published_at: null }).eq('id', CHAPTER_ID);
+    setStatus(false);
+    setSaveStatus('saved', 'Unpublished ✓');
+    setTimeout(() => setSaveStatus('', ''), 2000);
+}
+
+// Buttons
+document.getElementById('save-draft-btn').addEventListener('click',   () => save(false));
+document.getElementById('save-draft-btn-2').addEventListener('click', () => save(false));
+document.getElementById('publish-btn').addEventListener('click',      () => save(true));
+document.getElementById('publish-btn-2').addEventListener('click',    () => save(true));
+document.getElementById('unpublish-btn').addEventListener('click',    unpublish);
+
+// Keyboard shortcut Ctrl+S
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save(isPublished); }
+});
+
+document.addEventListener('DOMContentLoaded', loadChapter);
+</script>
+</body>
+</html>

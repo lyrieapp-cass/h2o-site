@@ -254,13 +254,10 @@
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:auto"><use href="#icon-chevron-down" id="comments-chevron"/></svg>
                     </button>
                     <div class="comments-body" id="comments-body">
-                        <div class="comment-login-prompt" id="comment-login-prompt">
+                        <div class="comment-login-prompt" id="comment-login-prompt" style="display:none">
                             <a href="login.html">Log in</a> to leave a comment.
                         </div>
-                        <!-- Comment input injected by auth.js when logged in -->
-                        <div class="comment-thread" id="comment-thread">
-                            <div class="empty-state" style="padding:var(--gap-lg) 0;font-size:13px">No comments yet. Be the first!</div>
-                        </div>
+                        <div class="comment-thread" id="comment-thread"></div>
                     </div>
                 </div>
 
@@ -332,6 +329,7 @@
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/stories.js"></script>
+<script src="js/comments.js"></script>
 <script>
 /* ── Story page: Phase 2B — live Supabase data ── */
 
@@ -499,7 +497,19 @@ document.getElementById('comments-toggle-btn').addEventListener('click', functio
     chevron.setAttribute('href', body.classList.contains('is-open') ? '#icon-chevron-up' : '#icon-chevron-down');
 });
 
-document.addEventListener('DOMContentLoaded', loadStory);
+document.addEventListener('DOMContentLoaded', async function() {
+    await loadStory();
+    if (CURRENT_STORY) {
+        window.H2O.initComments({
+            storyId:      CURRENT_STORY.id,
+            chapterId:    null,
+            toggleBtnId:  'comments-toggle-btn',
+            bodyId:       'comments-body',
+            threadId:     'comment-thread',
+            loginPromptId:'comment-login-prompt',
+        });
+    }
+});
 </script>
 </body>
 </html>

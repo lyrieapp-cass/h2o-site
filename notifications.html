@@ -310,63 +310,107 @@
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script>
-/* Notifications page — placeholder data, wired to Supabase in Phase 4B-1 */
+/* Notifications page — Phase 4B: live Supabase data */
 
-const PLACEHOLDER_NOTIFS = {
-    stories: [
-        { id: 1, unread: true,  storyTitle: 'The Tide Between Us', detail: 'New chapter: Ch.12 — Everything the Water Kept', time: new Date(Date.now() - 1000*60*20),  slug: 'the-tide-between-us', ch: 12 },
-        { id: 2, unread: true,  storyTitle: 'Deep Current',        detail: 'New chapter: Ch.07 — Undertow',                time: new Date(Date.now() - 1000*60*60*5),  slug: 'deep-current',        ch: 7  },
-        { id: 3, unread: false, storyTitle: 'Glass Harbor',        detail: 'New chapter: Ch.05 — The Vanishing Point',    time: new Date(Date.now() - 1000*60*60*48), slug: 'glass-harbor',        ch: 5  },
-    ],
-    community: [
-        { id: 4, unread: true,  storyTitle: 'The Tide Between Us', detail: 'Someone replied to your comment on Ch.11',    time: new Date(Date.now() - 1000*60*45),    slug: 'the-tide-between-us', ch: 11 },
-    ],
-};
+function waitForSupabase() {
+    return new Promise(resolve => {
+        if (window.supabase && window.supabase.from) return resolve();
+        window.addEventListener('supabase-ready', resolve, { once: true });
+    });
+}
 
-function timeAgo(date) {
-    const diff = Math.floor((Date.now() - date) / 1000);
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+function timeAgo(dateStr) {
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 60)    return 'just now';
+    if (diff < 3600)  return Math.floor(diff / 60)   + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600)  + 'h ago';
     return Math.floor(diff / 86400) + 'd ago';
 }
 
-function buildNotifItem(n, iconHref) {
+function buildNotifItem(n) {
+    const isStory    = n.type === 'new_chapter';
+    const iconHref   = isStory ? '#icon-book-open' : '#icon-message';
+    const storyTitle = n.stories?.title || 'Unknown Story';
+    const storySlug  = n.stories?.slug  || '';
+    const coverUrl   = n.stories?.cover_url || null;
+    const chNum      = n.chapters?.num || 1;
+    const chTitle    = n.chapters?.title || '';
+    const detail     = isStory
+        ? `New chapter: Ch.${String(chNum).padStart(2,'0')} — ${chTitle}`
+        : `Someone replied to your comment`;
+    const href = storySlug
+        ? `read.html?slug=${storySlug}&ch=${chNum}`
+        : '#';
+
     return `
-        <a class="notif-item ${n.unread ? 'is-unread' : ''}" href="read.html?slug=${n.slug}&ch=${n.ch}" data-id="${n.id}">
+        <a class="notif-item ${n.is_read ? '' : 'is-unread'}"
+           href="${href}"
+           data-id="${n.id}"
+           onclick="markRead('${n.id}')">
             <div class="notif-item__icon">
                 <svg viewBox="0 0 24 24"><use href="${iconHref}"/></svg>
             </div>
             <div class="notif-item__thumb">
-                <div class="cover-wrapper" style="border-radius:2px;background:var(--surface-alt)"></div>
+                <div class="cover-wrapper" style="border-radius:2px;background:var(--surface-alt)">
+                    ${coverUrl ? `<img src="${coverUrl}" alt="" loading="lazy">` : ''}
+                </div>
             </div>
             <div class="notif-item__body">
-                <div class="notif-item__title">${escapeHtml(n.storyTitle)}</div>
-                <div class="notif-item__detail">${escapeHtml(n.detail)}</div>
+                <div class="notif-item__title">${escapeHtml(storyTitle)}</div>
+                <div class="notif-item__detail">${escapeHtml(detail)}</div>
             </div>
-            <div class="notif-item__time">${timeAgo(n.time)}</div>
+            <div class="notif-item__time">${timeAgo(n.created_at)}</div>
         </a>
     `;
 }
 
-function renderNotifs() {
-    const s = PLACEHOLDER_NOTIFS.stories;
-    const c = PLACEHOLDER_NOTIFS.community;
+async function markRead(id) {
+    await waitForSupabase();
+    await window.supabase.from('notifications').update({ is_read: true }).eq('id', id);
+    const el = document.querySelector(`.notif-item[data-id="${id}"]`);
+    if (el) el.classList.remove('is-unread');
+}
 
-    const storiesList = document.getElementById('stories-notifs-list');
+async function loadNotifications() {
+    await waitForSupabase();
+
+    const { data: { session } } = await window.supabase.auth.getSession();
+    if (!session) { location.href = 'login.html'; return; }
+
+    const { data } = await window.supabase
+        .from('notifications')
+        .select(`
+            *,
+            stories ( title, slug, cover_url ),
+            chapters ( num, title )
+        `)
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+    const storyNotifs     = (data || []).filter(n => n.type === 'new_chapter');
+    const communityNotifs = (data || []).filter(n => n.type === 'comment_reply');
+
+    const storiesList   = document.getElementById('stories-notifs-list');
     const communityList = document.getElementById('community-notifs-list');
 
-    if (s.length === 0) {
+    if (storyNotifs.length === 0) {
         document.getElementById('stories-notifs-empty').style.display = 'block';
     } else {
-        storiesList.innerHTML = s.map(n => buildNotifItem(n, '#icon-book-open')).join('');
+        storiesList.innerHTML = storyNotifs.map(buildNotifItem).join('');
     }
 
-    if (c.length === 0) {
+    if (communityNotifs.length === 0) {
         document.getElementById('community-notifs-empty').style.display = 'block';
     } else {
-        communityList.innerHTML = c.map(n => buildNotifItem(n, '#icon-message')).join('');
+        communityList.innerHTML = communityNotifs.map(buildNotifItem).join('');
     }
+
+    // Clear unread dot on bell
+    const bellDot   = document.getElementById('bell-dot');
+    const mobileDot = document.getElementById('mobile-unread-dot');
+    if (bellDot)   bellDot.style.display   = 'none';
+    if (mobileDot) mobileDot.style.display = 'none';
 }
 
 // Tab switching
@@ -380,22 +424,39 @@ document.querySelectorAll('.notifs-tab').forEach(tab => {
 });
 
 // Mark all as read
-document.getElementById('mark-all-btn').addEventListener('click', function () {
+document.getElementById('mark-all-btn').addEventListener('click', async function () {
+    await waitForSupabase();
+    const { data: { session } } = await window.supabase.auth.getSession();
+    if (!session) return;
+    await window.supabase.from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', session.user.id)
+        .eq('is_read', false);
     document.querySelectorAll('.notif-item.is-unread').forEach(el => el.classList.remove('is-unread'));
-    // Phase 4B-1: update Supabase notifications table
 });
 
-// Delete all
-document.getElementById('delete-all-btn').addEventListener('click', function () {
-    const activePanel = document.querySelector('.notifs-tab-panel.is-active');
-    if (!activePanel) return;
-    activePanel.querySelector('[id$="-notifs-list"]').innerHTML = '';
-    const emptyEl = activePanel.querySelector('[id$="-notifs-empty"]');
-    if (emptyEl) emptyEl.style.display = 'block';
-    // Phase 4B-1: delete from Supabase notifications table
+// Delete all (current tab)
+document.getElementById('delete-all-btn').addEventListener('click', async function () {
+    if (!confirm('Delete all notifications in this tab?')) return;
+    await waitForSupabase();
+    const { data: { session } } = await window.supabase.auth.getSession();
+    if (!session) return;
+
+    const activeTab = document.querySelector('.notifs-tab.active')?.dataset.tab;
+    const type = activeTab === 'stories' ? 'new_chapter' : 'comment_reply';
+
+    await window.supabase.from('notifications')
+        .delete()
+        .eq('user_id', session.user.id)
+        .eq('type', type);
+
+    const listId = activeTab === 'stories' ? 'stories-notifs-list' : 'community-notifs-list';
+    const emptyId = activeTab === 'stories' ? 'stories-notifs-empty' : 'community-notifs-empty';
+    document.getElementById(listId).innerHTML = '';
+    document.getElementById(emptyId).style.display = 'block';
 });
 
-document.addEventListener('DOMContentLoaded', renderNotifs);
+document.addEventListener('DOMContentLoaded', loadNotifications);
 </script>
 </body>
 </html>

@@ -6,32 +6,15 @@
     <title>Stories — H2O Admin</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        .cover-thumb {
-            width: 32px;
-            flex-shrink: 0;
-            border-radius: 2px;
-            overflow: hidden;
-            background: var(--surface-alt);
-            border: 1px solid var(--border);
+        .modal-overlay { align-items: flex-start; padding-top: 60px; }
+        .modal { max-width: 540px; text-align: left; max-height: 85vh; overflow-y: auto; }
+        .genre-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+        .genre-tag {
+            padding: 4px 10px; border-radius: 3px; font-size: 12px; font-weight: 600;
+            background: var(--surface-alt); border: 1px solid var(--border); color: var(--text-muted);
+            cursor: pointer; transition: background var(--transition), color var(--transition), border-color var(--transition);
         }
-
-        .modal-overlay { align-items: flex-start; padding-top: 80px; }
-
-        .chapter-edit-row {
-            display: flex;
-            align-items: center;
-            gap: var(--gap-sm);
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .chapter-edit-row:last-child { border-bottom: none; }
-
-        .chapter-edit-row .form-input {
-            flex: 1;
-            padding: 6px 10px;
-            font-size: 13px;
-        }
+        .genre-tag.is-selected { background: rgba(0,194,217,0.12); color: var(--accent); border-color: var(--accent); }
     </style>
 </head>
 <body>
@@ -48,6 +31,7 @@
     <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
     <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
     <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></symbol>
+    <symbol id="icon-list" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
 </svg>
 
 <div class="admin-layout">
@@ -77,11 +61,10 @@
             </button>
         </div>
 
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">
+        <div id="stories-wrap" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>Cover</th>
                         <th>Title</th>
                         <th>Status</th>
                         <th>Chapters</th>
@@ -90,29 +73,38 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="stories-table"></tbody>
+                <tbody id="stories-table">
+                    <tr><td colspan="6" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">Loading…</td></tr>
+                </tbody>
             </table>
         </div>
+
+        <div class="empty-state" id="stories-empty" style="display:none">No stories yet. Click "New Story" to add one.</div>
     </main>
 </div>
 
-<!-- Story edit modal -->
+<!-- Story modal -->
 <div class="modal-overlay" id="story-modal">
-    <div class="modal" style="max-width:520px;text-align:left">
-        <div class="modal__title" id="modal-title">Edit Story</div>
+    <div class="modal">
+        <div class="modal__title" id="modal-title">New Story</div>
         <div style="margin-top:var(--gap-lg)">
+
             <div class="form-group">
                 <label class="form-label">Title</label>
-                <input type="text" id="edit-title" class="form-input" maxlength="100">
+                <input type="text" id="edit-title" class="form-input" maxlength="100" placeholder="Story title">
             </div>
+
             <div class="form-group">
-                <label class="form-label">Slug</label>
-                <input type="text" id="edit-slug" class="form-input" maxlength="80" placeholder="the-tide-between-us">
+                <label class="form-label">Slug <span style="color:var(--text-ghost);font-weight:400;text-transform:none;letter-spacing:0">(URL-friendly, e.g. my-story-title)</span></label>
+                <input type="text" id="edit-slug" class="form-input" maxlength="80" placeholder="my-story-title">
+                <div class="form-error" id="slug-error" style="display:none"></div>
             </div>
+
             <div class="form-group">
                 <label class="form-label">Synopsis</label>
-                <textarea id="edit-synopsis" class="form-textarea" rows="4" maxlength="1000"></textarea>
+                <textarea id="edit-synopsis" class="form-textarea" rows="5" maxlength="2000" placeholder="What is this story about?"></textarea>
             </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-md)">
                 <div class="form-group">
                     <label class="form-label">Status</label>
@@ -122,23 +114,60 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Genre</label>
-                    <input type="text" id="edit-genre" class="form-input" placeholder="Romance, Drama">
+                    <label class="form-label">Cover Image URL</label>
+                    <input type="text" id="edit-cover" class="form-input" placeholder="https://...">
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="form-label">Genre</label>
+                <div class="genre-tags" id="genre-tags">
+                    <span class="genre-tag" data-genre="Romance">Romance</span>
+                    <span class="genre-tag" data-genre="Drama">Drama</span>
+                    <span class="genre-tag" data-genre="Fantasy">Fantasy</span>
+                    <span class="genre-tag" data-genre="Thriller">Thriller</span>
+                    <span class="genre-tag" data-genre="Mystery">Mystery</span>
+                    <span class="genre-tag" data-genre="Horror">Horror</span>
+                    <span class="genre-tag" data-genre="Sci-Fi">Sci-Fi</span>
+                    <span class="genre-tag" data-genre="Slice of Life">Slice of Life</span>
+                    <span class="genre-tag" data-genre="Historical">Historical</span>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label class="form-label">Content Warnings</label>
-                <input type="text" id="edit-warnings" class="form-input" placeholder="Mature, Violence (comma separated)">
+                <div class="genre-tags" id="warning-tags">
+                    <span class="genre-tag" data-warning="Mature">Mature</span>
+                    <span class="genre-tag" data-warning="Violence">Violence</span>
+                    <span class="genre-tag" data-warning="Dark Themes">Dark Themes</span>
+                    <span class="genre-tag" data-warning="Language">Language</span>
+                </div>
             </div>
+
             <label class="toggle-switch" style="margin-bottom:var(--gap-lg)">
                 <input type="checkbox" id="edit-visible" checked>
                 <span class="toggle-track"></span>
                 <span class="toggle-label">Visible to readers</span>
             </label>
+
+            <div class="auth-error" id="modal-error" style="display:none;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--color-danger);margin-bottom:var(--gap-md)"></div>
         </div>
+
         <div style="display:flex;gap:var(--gap-sm);justify-content:flex-end">
             <button class="btn btn--ghost" id="modal-cancel">Cancel</button>
             <button class="btn btn--primary" id="modal-save">Save Story</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete confirm modal -->
+<div class="modal-overlay" id="delete-modal">
+    <div class="modal" style="text-align:center">
+        <div class="modal__title" style="color:var(--color-danger)">Delete Story?</div>
+        <div class="modal__body">This will permanently delete the story and all its chapters. This cannot be undone.</div>
+        <div class="modal__actions">
+            <button class="btn btn--ghost" id="delete-cancel">Cancel</button>
+            <button class="btn btn--danger" id="delete-confirm">Delete</button>
         </div>
     </div>
 </div>
@@ -147,85 +176,231 @@
 <script src="../js/supabase.js"></script>
 <script src="../js/auth.js"></script>
 <script>
-const STORIES = [
-    { id:1, slug:'the-tide-between-us', title:'The Tide Between Us', cover:null, status:'ongoing',   chapters:12, views:8420, visible:true  },
-    { id:2, slug:'salt-and-silence',    title:'Salt and Silence',    cover:null, status:'completed', chapters:24, views:5100, visible:true  },
-    { id:3, slug:'deep-current',        title:'Deep Current',        cover:null, status:'ongoing',   chapters:7,  views:3300, visible:true  },
-    { id:4, slug:'glass-harbor',        title:'Glass Harbor',        cover:null, status:'ongoing',   chapters:5,  views:2100, visible:true  },
-    { id:5, slug:'undertow',            title:'Undertow',            cover:null, status:'completed', chapters:18, views:4700, visible:true  },
-    { id:6, slug:'aqua-nova',           title:'Aqua Nova',           cover:null, status:'ongoing',   chapters:3,  views:890,  visible:false },
-];
+let editingStoryId = null;
+let deletingStoryId = null;
 
-function renderTable() {
-    document.getElementById('stories-table').innerHTML = STORIES.map(s => `
+function waitForSupabase() {
+    return new Promise(resolve => {
+        if (window.supabase && window.supabase.from) return resolve();
+        window.addEventListener('supabase-ready', resolve, { once: true });
+    });
+}
+
+// Auto-generate slug from title
+document.getElementById('edit-title').addEventListener('input', function () {
+    const slugEl = document.getElementById('edit-slug');
+    if (!editingStoryId) {
+        slugEl.value = this.value
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim();
+    }
+});
+
+// Genre tag toggle
+document.querySelectorAll('[data-genre]').forEach(tag => {
+    tag.addEventListener('click', function () { this.classList.toggle('is-selected'); });
+});
+
+document.querySelectorAll('[data-warning]').forEach(tag => {
+    tag.addEventListener('click', function () { this.classList.toggle('is-selected'); });
+});
+
+function getSelectedGenres()   { return [...document.querySelectorAll('[data-genre].is-selected')].map(t => t.dataset.genre); }
+function getSelectedWarnings() { return [...document.querySelectorAll('[data-warning].is-selected')].map(t => t.dataset.warning); }
+
+function clearSelections() {
+    document.querySelectorAll('[data-genre], [data-warning]').forEach(t => t.classList.remove('is-selected'));
+}
+
+function setSelections(genres, warnings) {
+    clearSelections();
+    (genres || []).forEach(g => {
+        const el = document.querySelector(`[data-genre="${g}"]`);
+        if (el) el.classList.add('is-selected');
+    });
+    (warnings || []).forEach(w => {
+        const el = document.querySelector(`[data-warning="${w}"]`);
+        if (el) el.classList.add('is-selected');
+    });
+}
+
+function showModalError(msg) {
+    const el = document.getElementById('modal-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+function hideModalError() {
+    document.getElementById('modal-error').style.display = 'none';
+}
+
+async function loadStories() {
+    await waitForSupabase();
+    const { data, error } = await window.supabase
+        .from('stories')
+        .select('id, slug, title, status, visible, views, updated_at')
+        .order('updated_at', { ascending: false });
+
+    const tbody = document.getElementById('stories-table');
+    const empty = document.getElementById('stories-empty');
+
+    if (error || !data || data.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        document.getElementById('stories-wrap').style.display = 'none';
+        return;
+    }
+
+    // Get chapter counts
+    const { data: chapters } = await window.supabase
+        .from('chapters')
+        .select('story_id')
+        .eq('published', true);
+
+    const chapterCounts = {};
+    (chapters || []).forEach(c => {
+        chapterCounts[c.story_id] = (chapterCounts[c.story_id] || 0) + 1;
+    });
+
+    tbody.innerHTML = data.map(s => `
         <tr>
-            <td>
-                <div class="cover-thumb">
-                    <div class="cover-wrapper" style="border-radius:2px"></div>
-                </div>
-            </td>
             <td style="font-weight:600;color:var(--text)">${escapeHtml(s.title)}</td>
-            <td><span class="badge ${s.status==='completed'?'badge--status-completed':'badge--status-ongoing'}">${s.status}</span></td>
-            <td>${s.chapters}</td>
-            <td>${s.views.toLocaleString()}</td>
+            <td><span class="badge ${s.status === 'completed' ? 'badge--status-completed' : 'badge--status-ongoing'}">${s.status}</span></td>
+            <td>${chapterCounts[s.id] || 0}</td>
+            <td>${(s.views || 0).toLocaleString()}</td>
             <td>
                 <label class="toggle-switch">
-                    <input type="checkbox" ${s.visible?'checked':''} onchange="toggleVisible(${s.id}, this.checked)">
+                    <input type="checkbox" ${s.visible ? 'checked' : ''} onchange="toggleVisible('${s.id}', this.checked)">
                     <span class="toggle-track"></span>
                 </label>
             </td>
             <td>
                 <div style="display:flex;gap:4px">
-                    <button class="btn btn--ghost btn--sm" onclick="openEdit(${s.id})">
+                    <button class="btn btn--ghost btn--sm" onclick="openEdit('${s.id}')">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit"/></svg>
+                        Edit
                     </button>
+                    <a href="chapters.html?story=${s.id}&title=${encodeURIComponent(s.title)}" class="btn btn--ghost btn--sm">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-list"/></svg>
+                        Chapters
+                    </a>
                     <a href="../story.html?slug=${s.slug}" class="btn btn--ghost btn--sm" target="_blank">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-eye"/></svg>
                     </a>
+                    <button class="btn btn--ghost btn--sm" style="color:var(--color-danger)" onclick="openDelete('${s.id}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
+                    </button>
                 </div>
             </td>
         </tr>
     `).join('');
 }
 
-function toggleVisible(id, val) {
-    const s = STORIES.find(s => s.id === id);
-    if (s) s.visible = val;
-    // Phase 4A: update Supabase
+async function toggleVisible(id, val) {
+    await waitForSupabase();
+    await window.supabase.from('stories').update({ visible: val }).eq('id', id);
 }
 
-function openEdit(id) {
-    const s = STORIES.find(s => s.id === id);
-    if (!s) return;
-    document.getElementById('modal-title').textContent = 'Edit Story';
-    document.getElementById('edit-title').value = s.title;
-    document.getElementById('edit-slug').value = s.slug;
-    document.getElementById('edit-status').value = s.status;
-    document.getElementById('edit-visible').checked = s.visible;
-    document.getElementById('story-modal').classList.add('is-open');
-}
-
-document.getElementById('new-story-btn').addEventListener('click', function () {
+function openNew() {
+    editingStoryId = null;
     document.getElementById('modal-title').textContent = 'New Story';
-    document.getElementById('edit-title').value = '';
-    document.getElementById('edit-slug').value = '';
+    document.getElementById('edit-title').value    = '';
+    document.getElementById('edit-slug').value     = '';
     document.getElementById('edit-synopsis').value = '';
-    document.getElementById('edit-genre').value = '';
-    document.getElementById('edit-warnings').value = '';
+    document.getElementById('edit-cover').value    = '';
+    document.getElementById('edit-status').value   = 'ongoing';
     document.getElementById('edit-visible').checked = true;
+    clearSelections();
+    hideModalError();
     document.getElementById('story-modal').classList.add('is-open');
-});
+    document.getElementById('edit-title').focus();
+}
 
-document.getElementById('modal-cancel').addEventListener('click', () => {
+async function openEdit(id) {
+    await waitForSupabase();
+    const { data } = await window.supabase.from('stories').select('*').eq('id', id).single();
+    if (!data) return;
+
+    editingStoryId = id;
+    document.getElementById('modal-title').textContent    = 'Edit Story';
+    document.getElementById('edit-title').value           = data.title;
+    document.getElementById('edit-slug').value            = data.slug;
+    document.getElementById('edit-synopsis').value        = data.synopsis || '';
+    document.getElementById('edit-cover').value           = data.cover_url || '';
+    document.getElementById('edit-status').value          = data.status;
+    document.getElementById('edit-visible').checked       = data.visible;
+    setSelections(data.genre, data.warnings);
+    hideModalError();
+    document.getElementById('story-modal').classList.add('is-open');
+}
+
+async function saveStory() {
+    hideModalError();
+    const title   = document.getElementById('edit-title').value.trim();
+    const slug    = document.getElementById('edit-slug').value.trim();
+    const synopsis = document.getElementById('edit-synopsis').value.trim();
+    const cover   = document.getElementById('edit-cover').value.trim();
+    const status  = document.getElementById('edit-status').value;
+    const visible = document.getElementById('edit-visible').checked;
+    const genre   = getSelectedGenres();
+    const warnings = getSelectedWarnings();
+
+    if (!title) { showModalError('Title is required.'); return; }
+    if (!slug)  { showModalError('Slug is required.'); return; }
+    if (!/^[a-z0-9-]+$/.test(slug)) { showModalError('Slug can only contain lowercase letters, numbers, and hyphens.'); return; }
+
+    const saveBtn = document.getElementById('modal-save');
+    saveBtn.textContent = 'Saving…';
+    saveBtn.disabled = true;
+
+    await waitForSupabase();
+
+    const payload = { title, slug, synopsis, cover_url: cover || null, status, visible, genre, warnings, updated_at: new Date().toISOString() };
+
+    let error;
+    if (editingStoryId) {
+        ({ error } = await window.supabase.from('stories').update(payload).eq('id', editingStoryId));
+    } else {
+        ({ error } = await window.supabase.from('stories').insert(payload));
+    }
+
+    saveBtn.textContent = 'Save Story';
+    saveBtn.disabled = false;
+
+    if (error) {
+        if (error.message.includes('unique')) showModalError('A story with that slug already exists.');
+        else showModalError('Error: ' + error.message);
+        return;
+    }
+
     document.getElementById('story-modal').classList.remove('is-open');
-});
+    loadStories();
+}
 
-document.getElementById('modal-save').addEventListener('click', () => {
-    document.getElementById('story-modal').classList.remove('is-open');
-    // Phase 4A: save to Supabase
-});
+function openDelete(id) {
+    deletingStoryId = id;
+    document.getElementById('delete-modal').classList.add('is-open');
+}
 
-document.addEventListener('DOMContentLoaded', renderTable);
+async function confirmDelete() {
+    if (!deletingStoryId) return;
+    await waitForSupabase();
+    await window.supabase.from('stories').delete().eq('id', deletingStoryId);
+    document.getElementById('delete-modal').classList.remove('is-open');
+    deletingStoryId = null;
+    loadStories();
+}
+
+document.getElementById('new-story-btn').addEventListener('click', openNew);
+document.getElementById('modal-cancel').addEventListener('click', () => { document.getElementById('story-modal').classList.remove('is-open'); });
+document.getElementById('modal-save').addEventListener('click', saveStory);
+document.getElementById('delete-cancel').addEventListener('click', () => { document.getElementById('delete-modal').classList.remove('is-open'); });
+document.getElementById('delete-confirm').addEventListener('click', confirmDelete);
+
+document.addEventListener('DOMContentLoaded', loadStories);
 </script>
 </body>
 </html>

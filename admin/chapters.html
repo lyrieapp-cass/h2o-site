@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapters — H2O Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+    <symbol id="icon-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="icon-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="icon-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="icon-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></symbol>
+    <symbol id="icon-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+</svg>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="dashboard.html" class="admin-sidebar__logo brand-text">H2O <span>Admin</span></a>
+        <div class="admin-sidebar__label">Overview</div>
+        <a href="dashboard.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>Dashboard</a>
+        <div class="admin-sidebar__label">Content</div>
+        <a href="stories.html" class="admin-nav-item active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-book-open"/></svg>Stories</a>
+        <a href="comments.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-message"/></svg>Comments</a>
+        <a href="comments.html#reported" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-flag"/></svg>Reported</a>
+        <div class="admin-sidebar__label">Users</div>
+        <a href="users.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-users"/></svg>Users</a>
+        <div class="admin-sidebar__label">System</div>
+        <a href="settings.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-settings"/></svg>Settings</a>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:var(--gap-md) 0;border-top:1px solid var(--border)">
+            <a href="../index.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-log-out"/></svg>Back to Site</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="display:flex;align-items:center;gap:var(--gap-md);margin-bottom:var(--gap-xl)">
+            <a href="stories.html" class="btn btn--ghost btn--sm">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-arrow-left"/></svg>
+                Stories
+            </a>
+            <div class="admin-page-title" style="margin-bottom:0" id="page-title">Chapters</div>
+            <div style="margin-left:auto">
+                <a href="#" class="btn btn--primary btn--sm" id="new-chapter-btn">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><use href="#icon-plus"/></svg>
+                    New Chapter
+                </a>
+            </div>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden" id="chapters-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Ch.</th>
+                        <th>Title</th>
+                        <th>Published</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="chapters-table">
+                    <tr><td colspan="5" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">Loading…</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty-state" id="chapters-empty" style="display:none">No chapters yet. Click "New Chapter" to add one.</div>
+    </main>
+</div>
+
+<!-- Delete confirm -->
+<div class="modal-overlay" id="delete-modal">
+    <div class="modal" style="text-align:center">
+        <div class="modal__title" style="color:var(--color-danger)">Delete Chapter?</div>
+        <div class="modal__body">This will permanently delete this chapter. This cannot be undone.</div>
+        <div class="modal__actions">
+            <button class="btn btn--ghost" id="delete-cancel">Cancel</button>
+            <button class="btn btn--danger" id="delete-confirm">Delete</button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/main.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+const params   = new URLSearchParams(window.location.search);
+const STORY_ID = params.get('story');
+const STORY_TITLE = params.get('title') || 'Story';
+let deletingChapterId = null;
+
+function waitForSupabase() {
+    return new Promise(resolve => {
+        if (window.supabase && window.supabase.from) return resolve();
+        window.addEventListener('supabase-ready', resolve, { once: true });
+    });
+}
+
+document.getElementById('page-title').textContent = `Chapters — ${decodeURIComponent(STORY_TITLE)}`;
+document.getElementById('new-chapter-btn').href = `chapter-editor.html?story=${STORY_ID}&title=${params.get('title') || ''}`;
+
+function formatDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+async function loadChapters() {
+    if (!STORY_ID) return;
+    await waitForSupabase();
+
+    const { data, error } = await window.supabase
+        .from('chapters')
+        .select('id, num, title, published, published_at')
+        .eq('story_id', STORY_ID)
+        .order('num', { ascending: true });
+
+    const tbody = document.getElementById('chapters-table');
+    const empty = document.getElementById('chapters-empty');
+    const wrap  = document.getElementById('chapters-wrap');
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '';
+        wrap.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+    }
+
+    tbody.innerHTML = data.map(c => `
+        <tr>
+            <td style="font-weight:700;color:var(--accent)">Ch.${String(c.num).padStart(2,'0')}</td>
+            <td style="font-weight:600;color:var(--text)">${escapeHtml(c.title)}</td>
+            <td>
+                <label class="toggle-switch">
+                    <input type="checkbox" ${c.published ? 'checked' : ''} onchange="togglePublished('${c.id}', this.checked)">
+                    <span class="toggle-track"></span>
+                </label>
+            </td>
+            <td>${formatDate(c.published_at)}</td>
+            <td>
+                <div style="display:flex;gap:4px">
+                    <a href="chapter-editor.html?story=${STORY_ID}&chapter=${c.id}&title=${params.get('title')||''}" class="btn btn--ghost btn--sm">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-edit"/></svg>
+                        Edit
+                    </a>
+                    <button class="btn btn--ghost btn--sm" style="color:var(--color-danger)" onclick="openDelete('${c.id}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function togglePublished(id, val) {
+    await waitForSupabase();
+    const update = { published: val };
+    if (val) update.published_at = new Date().toISOString();
+    await window.supabase.from('chapters').update(update).eq('id', id);
+}
+
+function openDelete(id) {
+    deletingChapterId = id;
+    document.getElementById('delete-modal').classList.add('is-open');
+}
+
+async function confirmDelete() {
+    if (!deletingChapterId) return;
+    await waitForSupabase();
+    await window.supabase.from('chapters').delete().eq('id', deletingChapterId);
+    document.getElementById('delete-modal').classList.remove('is-open');
+    deletingChapterId = null;
+    loadChapters();
+}
+
+document.getElementById('delete-cancel').addEventListener('click', () => { document.getElementById('delete-modal').classList.remove('is-open'); });
+document.getElementById('delete-confirm').addEventListener('click', confirmDelete);
+
+document.addEventListener('DOMContentLoaded', loadChapters);
+</script>
+</body>
+</html>

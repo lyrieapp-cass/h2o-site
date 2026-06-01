@@ -350,83 +350,139 @@
 <script src="js/main.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/stories.js"></script>
 <script>
-/* Profile page — placeholder data, wired to Supabase in Phase 2 */
+/* Profile page — Phase 3A: live Supabase data */
 
-const PLACEHOLDER_PROFILE = {
-    name: 'Reader',
-    handle: 'reader',
-    joinDate: '2025-01-15',
-    lastSeen: new Date(Date.now() - 1000 * 60 * 8), // 8 min ago
-    chaptersRead: 34,
-    bookmarks: [],
-    history: [
-        { slug: 'the-tide-between-us', title: 'The Tide Between Us', ch: 12, chTitle: 'Everything the Water Kept', time: new Date(Date.now() - 1000 * 60 * 30) },
-        { slug: 'deep-current', title: 'Deep Current', ch: 7, chTitle: 'Undertow', time: new Date(Date.now() - 1000 * 60 * 60 * 3) },
-        { slug: 'salt-and-silence', title: 'Salt and Silence', ch: 18, chTitle: 'The Last Room', time: new Date(Date.now() - 1000 * 60 * 60 * 24) },
-    ],
-};
+function waitForSupabase() {
+    return new Promise(resolve => {
+        if (window.supabase && window.supabase.from) return resolve();
+        window.addEventListener('supabase-ready', resolve, { once: true });
+    });
+}
 
-function timeAgo(date) {
-    const diff = Math.floor((Date.now() - date) / 1000);
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+function timeAgo(dateStr) {
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+    if (diff < 60)    return 'just now';
+    if (diff < 3600)  return Math.floor(diff / 60)   + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600)  + 'h ago';
     return Math.floor(diff / 86400) + 'd ago';
 }
 
-function loadProfile() {
-    const p = PLACEHOLDER_PROFILE;
-    const initial = p.name.charAt(0).toUpperCase();
+async function loadProfile() {
+    await waitForSupabase();
 
-    document.getElementById('profile-avatar').textContent = initial;
-    document.getElementById('profile-name').textContent = p.name;
-    document.getElementById('profile-handle').textContent = '@' + p.handle;
-    document.getElementById('chapters-read').textContent = p.chaptersRead.toLocaleString();
-    document.getElementById('join-date').textContent = new Date(p.joinDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    document.title = `${p.name} — H2O Writes`;
+    // Wait for auth
+    const { data: { session } } = await window.supabase.auth.getSession();
+    if (!session) { location.href = 'login.html'; return; }
 
-    // Status
-    const minsAgo = Math.floor((Date.now() - p.lastSeen) / 60000);
-    const isOnline = minsAgo < 5;
-    document.getElementById('status-dot').classList.toggle('is-online', isOnline);
-    document.getElementById('status-text').textContent = isOnline ? 'Online now' : `Last seen ${timeAgo(p.lastSeen)}`;
+    const userId = session.user.id;
+
+    // Fetch profile
+    const { data: profile } = await window.supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+    if (!profile) return;
+
+    const initial = profile.display_name.charAt(0).toUpperCase();
+    document.getElementById('profile-avatar').textContent  = initial;
+    document.getElementById('profile-name').textContent    = profile.display_name;
+    document.getElementById('profile-handle').textContent  = '@' + profile.handle;
+    document.getElementById('join-date').textContent       = new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.title = `${profile.display_name} — H2O Writes`;
+
+    // Online status — always show "Online now" since they're on the page
+    document.getElementById('status-dot').classList.add('is-online');
+    document.getElementById('status-text').textContent = 'Online now';
+
+    // Chapters read count
+    const { count: chaptersRead } = await window.supabase
+        .from('read_history')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId);
+    document.getElementById('chapters-read').textContent = (chaptersRead || 0).toLocaleString();
 
     // Bookmarks
-    const bookmarksGrid = document.getElementById('bookmarks-grid');
-    if (p.bookmarks.length === 0) {
-        document.getElementById('bookmarks-empty').style.display = 'block';
-    } else {
-        bookmarksGrid.innerHTML = p.bookmarks.map(s => `
+    await loadBookmarks(userId);
+
+    // Read history
+    await loadHistory(userId);
+}
+
+async function loadBookmarks(userId) {
+    const { data } = await window.supabase
+        .from('bookmarks')
+        .select('story_id, stories(id, slug, title, cover_url, status, updated_at)')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    const grid  = document.getElementById('bookmarks-grid');
+    const empty = document.getElementById('bookmarks-empty');
+
+    if (!data || data.length === 0) {
+        empty.style.display = 'block';
+        return;
+    }
+
+    grid.innerHTML = data.map(b => {
+        const s = b.stories;
+        if (!s) return '';
+        const coverContent = s.cover_url
+            ? `<img src="${s.cover_url}" alt="${escapeHtml(s.title)}" loading="lazy">`
+            : `<div class="cover-title">${escapeHtml(s.title)}</div>`;
+        const coverClass = s.cover_url ? '' : ' is-placeholder';
+        return `
             <a class="story-card" href="story.html?slug=${s.slug}">
-                <div class="story-card__cover-wrap is-placeholder">
-                    <div class="cover-title">${escapeHtml(s.title)}</div>
-                </div>
+                <div class="story-card__cover-wrap${coverClass}">${coverContent}</div>
                 <div class="story-card__meta">
                     <div class="story-card__title">${escapeHtml(s.title)}</div>
                 </div>
             </a>
-        `).join('');
+        `;
+    }).join('');
+}
+
+async function loadHistory(userId) {
+    const { data } = await window.supabase
+        .from('read_history')
+        .select(`
+            read_at,
+            chapters ( num, title ),
+            stories ( slug, title, cover_url )
+        `)
+        .eq('user_id', userId)
+        .order('read_at', { ascending: false })
+        .limit(20);
+
+    const list  = document.getElementById('history-list');
+    const empty = document.getElementById('history-empty');
+
+    if (!data || data.length === 0) {
+        empty.style.display = 'block';
+        return;
     }
 
-    // Read history
-    const historyList = document.getElementById('history-list');
-    if (p.history.length === 0) {
-        document.getElementById('history-empty').style.display = 'block';
-    } else {
-        historyList.innerHTML = p.history.map(h => `
-            <a class="read-history-item" href="read.html?slug=${h.slug}&ch=${h.ch}">
+    list.innerHTML = data.map(h => {
+        if (!h.stories || !h.chapters) return '';
+        const coverContent = h.stories.cover_url
+            ? `<img src="${h.stories.cover_url}" alt="" loading="lazy">`
+            : '';
+        return `
+            <a class="read-history-item" href="read.html?slug=${h.stories.slug}&ch=${h.chapters.num}">
                 <div class="read-history-item__thumb">
-                    <div class="cover-wrapper" style="border-radius:3px;background:var(--surface-alt)"></div>
+                    <div class="cover-wrapper" style="border-radius:3px;background:var(--surface-alt)">${coverContent}</div>
                 </div>
                 <div class="read-history-item__meta">
-                    <div class="read-history-item__title">${escapeHtml(h.title)}</div>
-                    <div class="read-history-item__chapter">Ch.${String(h.ch).padStart(2,'0')}: ${escapeHtml(h.chTitle)}</div>
+                    <div class="read-history-item__title">${escapeHtml(h.stories.title)}</div>
+                    <div class="read-history-item__chapter">Ch.${String(h.chapters.num).padStart(2,'0')}: ${escapeHtml(h.chapters.title)}</div>
                 </div>
-                <div class="read-history-item__time">${timeAgo(h.time)}</div>
+                <div class="read-history-item__time">${timeAgo(h.read_at)}</div>
             </a>
-        `).join('');
-    }
+        `;
+    }).join('');
 }
 
 // Tab switching
