@@ -146,11 +146,7 @@
                 <div class="avatar-dropdown" id="avatar-dropdown">
                     <div class="avatar-dropdown__header">
                         <div class="avatar-dropdown__name" id="dropdown-name">Reader</div>
-                        <div class="avatar-dropdown__handle" id="dropdown-handle">@handle</div>
-                    </div>
                     <a href="profile.html" class="avatar-dropdown__item">My Profile</a>
-                    <a href="#" class="avatar-dropdown__item">Bookmarks</a>
-                    <a href="#" class="avatar-dropdown__item">Read History</a>
                     <div class="avatar-dropdown__divider"></div>
                     <button class="avatar-dropdown__item avatar-dropdown__item--danger" id="signout-btn">Sign Out</button>
                 </div>
@@ -292,19 +288,16 @@
 <nav class="mobile-nav">
     <div class="mobile-nav__inner">
         <button class="mobile-nav__tab" data-page="home" onclick="location.href='index.html'">
-            <svg><use href="#icon-home"/></svg><span>Home</span>
+            <svg><use href="#icon-home"/></svg>
+            <span>Home</span>
         </button>
         <button class="mobile-nav__tab" data-page="stories" onclick="location.href='stories.html'">
-            <svg><use href="#icon-grid"/></svg><span>Stories</span>
+            <svg><use href="#icon-grid"/></svg>
+            <span>Stories</span>
         </button>
-        <button class="mobile-nav__tab" data-page="search" onclick="location.href='stories.html#search'">
-            <svg><use href="#icon-search"/></svg><span>Search</span>
-        </button>
-        <button class="mobile-nav__tab" data-page="notifs" data-auth-required>
-            <svg><use href="#icon-bell"/></svg><span>Notifs</span>
-        </button>
-        <button class="mobile-nav__tab" data-page="profile" data-auth-required>
-            <svg><use href="#icon-user"/></svg><span>Profile</span>
+        <button class="mobile-nav__tab" data-page="profile" onclick="location.href='profile.html'">
+            <svg><use href="#icon-user"/></svg>
+            <span>Profile</span>
         </button>
     </div>
 </nav>

@@ -40,7 +40,6 @@
     <main class="admin-main">
         <div class="admin-page-title">Users</div>
 
-        <!-- Search -->
         <div style="position:relative;margin-bottom:var(--gap-lg);max-width:360px">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-ghost)"><use href="#icon-search"/></svg>
             <input type="text" id="user-search" class="form-input" placeholder="Search by name or handle…" style="padding-left:36px">
@@ -53,17 +52,13 @@
                         <th>User</th>
                         <th>Handle</th>
                         <th>Joined</th>
-                        <th>Comments</th>
-                        <th>Status</th>
+                        <th>Admin</th>
+                        <th>Banned</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="users-table">
-                    <tr>
-                        <td colspan="6" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">
-                            User data loads from Supabase in Phase 2A.
-                        </td>
-                    </tr>
+                    <tr><td colspan="6" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">Loading…</td></tr>
                 </tbody>
             </table>
         </div>
@@ -73,5 +68,87 @@
 <script src="../js/main.js"></script>
 <script src="../js/supabase.js"></script>
 <script src="../js/auth.js"></script>
+<script>
+let ALL_USERS = [];
+
+function waitForSupabase() {
+    return new Promise(resolve => {
+        if (window.supabase && window.supabase.from) return resolve();
+        window.addEventListener('supabase-ready', resolve, { once: true });
+    });
+}
+
+function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+async function loadUsers() {
+    await waitForSupabase();
+    const { data, error } = await window.supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    ALL_USERS = data || [];
+    renderUsers(ALL_USERS);
+}
+
+function renderUsers(users) {
+    const tbody = document.getElementById('users-table');
+    if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">No users found.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = users.map(u => `
+        <tr>
+            <td style="font-weight:600;color:var(--text)">${escapeHtml(u.display_name)}</td>
+            <td style="color:var(--text-muted)">@${escapeHtml(u.handle)}</td>
+            <td>${formatDate(u.created_at)}</td>
+            <td>
+                <label class="toggle-switch">
+                    <input type="checkbox" ${u.is_admin ? 'checked' : ''} onchange="toggleAdmin('${u.id}', this.checked)">
+                    <span class="toggle-track"></span>
+                </label>
+            </td>
+            <td>
+                <label class="toggle-switch">
+                    <input type="checkbox" ${u.is_banned ? 'checked' : ''} onchange="toggleBan('${u.id}', this.checked)">
+                    <span class="toggle-track"></span>
+                </label>
+            </td>
+            <td>
+                <button class="btn btn--ghost btn--sm" style="color:var(--color-danger)" onclick="deleteUser('${u.id}', '${escapeHtml(u.display_name)}')">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function toggleAdmin(id, val) {
+    await waitForSupabase();
+    await window.supabase.from('profiles').update({ is_admin: val }).eq('id', id);
+}
+
+async function toggleBan(id, val) {
+    await waitForSupabase();
+    await window.supabase.from('profiles').update({ is_banned: val }).eq('id', id);
+}
+
+async function deleteUser(id, name) {
+    if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+    await waitForSupabase();
+    await window.supabase.from('profiles').delete().eq('id', id);
+    loadUsers();
+}
+
+document.getElementById('user-search').addEventListener('input', function () {
+    const q = this.value.trim().toLowerCase();
+    renderUsers(q ? ALL_USERS.filter(u =>
+        u.display_name.toLowerCase().includes(q) ||
+        u.handle.toLowerCase().includes(q)
+    ) : ALL_USERS);
+});
+
+document.addEventListener('DOMContentLoaded', loadUsers);
+</script>
 </body>
 </html>

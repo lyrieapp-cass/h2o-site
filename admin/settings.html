@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings — H2O Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+    <symbol id="icon-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="icon-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="icon-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="icon-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></symbol>
+</svg>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="dashboard.html" class="admin-sidebar__logo brand-text">H2O <span>Admin</span></a>
+        <div class="admin-sidebar__label">Overview</div>
+        <a href="dashboard.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-grid"/></svg>Dashboard</a>
+        <div class="admin-sidebar__label">Content</div>
+        <a href="stories.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-book-open"/></svg>Stories</a>
+        <a href="comments.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-message"/></svg>Comments</a>
+        <a href="comments.html#reported" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-flag"/></svg>Reported</a>
+        <div class="admin-sidebar__label">Users</div>
+        <a href="users.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-users"/></svg>Users</a>
+        <div class="admin-sidebar__label">System</div>
+        <a href="settings.html" class="admin-nav-item active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-settings"/></svg>Settings</a>
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:var(--gap-md) 0;border-top:1px solid var(--border)">
+            <a href="../index.html" class="admin-nav-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-log-out"/></svg>Back to Site</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div class="admin-page-title">Settings</div>
+
+        <!-- Site Info -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--gap-xl);margin-bottom:var(--gap-xl)">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:var(--gap-lg)">Site Info</div>
+            <div class="form-group">
+                <label class="form-label">Site Name</label>
+                <input type="text" id="site-name" class="form-input" value="H2O Writes">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tagline</label>
+                <input type="text" id="site-tagline" class="form-input" value="Original stories by givemeaglassofh2o">
+            </div>
+            <div class="form-group">
+                <label class="form-label">About Bio (shown on About page)</label>
+                <textarea id="site-bio" class="form-textarea" rows="4" placeholder="Write a short bio about yourself…"></textarea>
+            </div>
+            <button class="btn btn--primary btn--sm" id="save-site-btn">Save Site Info</button>
+        </div>
+
+        <!-- Social Links -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--gap-xl);margin-bottom:var(--gap-xl)">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:var(--gap-lg)">Social Links</div>
+            <div class="form-group">
+                <label class="form-label">TikTok URL</label>
+                <input type="url" id="social-tiktok" class="form-input" placeholder="https://tiktok.com/@...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Twitter / X URL</label>
+                <input type="url" id="social-twitter" class="form-input" placeholder="https://x.com/...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Instagram URL</label>
+                <input type="url" id="social-instagram" class="form-input" placeholder="https://instagram.com/...">
+            </div>
+            <button class="btn btn--primary btn--sm" id="save-social-btn">Save Social Links</button>
+        </div>
+
+        <!-- Comments -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--gap-xl);margin-bottom:var(--gap-xl)">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:var(--gap-lg)">Comments</div>
+            <label class="toggle-switch" style="margin-bottom:var(--gap-md)">
+                <input type="checkbox" id="comments-enabled" checked>
+                <span class="toggle-track"></span>
+                <span class="toggle-label">Enable comments globally</span>
+            </label>
+            <br>
+            <label class="toggle-switch">
+                <input type="checkbox" id="comments-login-required" checked>
+                <span class="toggle-track"></span>
+                <span class="toggle-label">Require login to comment</span>
+            </label>
+            <div style="margin-top:var(--gap-lg)">
+                <button class="btn btn--primary btn--sm" id="save-comments-btn">Save Comment Settings</button>
+            </div>
+        </div>
+
+        <!-- Account -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--gap-xl)">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:var(--gap-lg)">My Account</div>
+            <div class="form-group">
+                <label class="form-label">Display Name</label>
+                <input type="text" id="account-name" class="form-input" maxlength="40">
+            </div>
+            <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" id="account-password" class="form-input" placeholder="Leave blank to keep current">
+            </div>
+            <div class="auth-error" id="account-error" style="display:none;background:rgba(224,92,92,0.1);border:1px solid rgba(224,92,92,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--color-danger);margin-bottom:var(--gap-md)"></div>
+            <div class="auth-success" id="account-success" style="display:none;background:rgba(46,204,154,0.1);border:1px solid rgba(46,204,154,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--color-success);margin-bottom:var(--gap-md)"></div>
+            <button class="btn btn--primary btn--sm" id="save-account-btn">Update Account</button>
+        </div>
+
+    </main>
+</div>
+
+<script src="../js/main.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+function waitForSupabase() {
+    return new Promise(resolve => {
+        if (window.supabase && window.supabase.from) return resolve();
+        window.addEventListener('supabase-ready', resolve, { once: true });
+    });
+}
+
+// Load settings from localStorage
+function loadSettings() {
+    const s = JSON.parse(localStorage.getItem('h2o-settings') || '{}');
+    if (s.siteName)    document.getElementById('site-name').value       = s.siteName;
+    if (s.tagline)     document.getElementById('site-tagline').value    = s.tagline;
+    if (s.bio)         document.getElementById('site-bio').value        = s.bio;
+    if (s.tiktok)      document.getElementById('social-tiktok').value   = s.tiktok;
+    if (s.twitter)     document.getElementById('social-twitter').value  = s.twitter;
+    if (s.instagram)   document.getElementById('social-instagram').value = s.instagram;
+}
+
+function saveSettings(extra) {
+    const existing = JSON.parse(localStorage.getItem('h2o-settings') || '{}');
+    localStorage.setItem('h2o-settings', JSON.stringify({ ...existing, ...extra }));
+}
+
+function showSaved(btnId) {
+    const btn = document.getElementById(btnId);
+    const orig = btn.textContent;
+    btn.textContent = 'Saved ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+}
+
+document.getElementById('save-site-btn').addEventListener('click', function () {
+    saveSettings({
+        siteName: document.getElementById('site-name').value.trim(),
+        tagline:  document.getElementById('site-tagline').value.trim(),
+        bio:      document.getElementById('site-bio').value.trim(),
+    });
+    showSaved('save-site-btn');
+});
+
+document.getElementById('save-social-btn').addEventListener('click', function () {
+    saveSettings({
+        tiktok:    document.getElementById('social-tiktok').value.trim(),
+        twitter:   document.getElementById('social-twitter').value.trim(),
+        instagram: document.getElementById('social-instagram').value.trim(),
+    });
+    showSaved('save-social-btn');
+});
+
+document.getElementById('save-comments-btn').addEventListener('click', function () {
+    saveSettings({
+        commentsEnabled:      document.getElementById('comments-enabled').checked,
+        commentsLoginRequired: document.getElementById('comments-login-required').checked,
+    });
+    showSaved('save-comments-btn');
+});
+
+// Account update
+document.getElementById('save-account-btn').addEventListener('click', async function () {
+    await waitForSupabase();
+    const name     = document.getElementById('account-name').value.trim();
+    const password = document.getElementById('account-password').value;
+    const errorEl  = document.getElementById('account-error');
+    const successEl = document.getElementById('account-success');
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    try {
+        const { data: { session } } = await window.supabase.auth.getSession();
+        if (!session) return;
+
+        if (name) {
+            await window.supabase.from('profiles')
+                .update({ display_name: name })
+                .eq('id', session.user.id);
+        }
+
+        if (password) {
+            if (password.length < 8) {
+                errorEl.textContent = 'Password must be at least 8 characters.';
+                errorEl.style.display = 'block';
+                return;
+            }
+            const { error } = await window.supabase.auth.updateUser({ password });
+            if (error) { errorEl.textContent = error.message; errorEl.style.display = 'block'; return; }
+        }
+
+        successEl.textContent = 'Account updated successfully.';
+        successEl.style.display = 'block';
+        document.getElementById('account-password').value = '';
+    } catch (e) {
+        errorEl.textContent = 'Something went wrong.';
+        errorEl.style.display = 'block';
+    }
+});
+
+// Load current display name
+async function loadAccount() {
+    await waitForSupabase();
+    const { data: { session } } = await window.supabase.auth.getSession();
+    if (!session) return;
+    const { data } = await window.supabase.from('profiles').select('display_name').eq('id', session.user.id).single();
+    if (data) document.getElementById('account-name').value = data.display_name;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    loadSettings();
+    await loadAccount();
+});
+</script>
+</body>
+</html>
