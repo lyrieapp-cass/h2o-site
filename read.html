@@ -593,15 +593,7 @@ document.getElementById('authors-note-toggle').addEventListener('click', functio
     chevron.setAttribute('href', body.classList.contains('is-open') ? '#icon-chevron-up' : '#icon-chevron-down');
 });
 
-document.getElementById('comments-toggle-btn').addEventListener('click', function () {
-    const body = document.getElementById('comments-body');
-    const isOpen = body.classList.toggle('is-open');
-    this.innerHTML = `
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-message"/></svg>
-        ${isOpen ? 'Hide Comments' : 'Show Comments'}
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:auto"><use href="${isOpen ? '#icon-chevron-up' : '#icon-chevron-down'}"/></svg>
-    `;
-});
+// Comments toggle handled by comments.js
 
 document.getElementById('settings-toggle-btn').addEventListener('click', function () {
     document.getElementById('reading-settings-panel').classList.toggle('is-open');

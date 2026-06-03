@@ -136,83 +136,91 @@ function buildCommentInput(placeholder, submitLabel, onSubmit) {
 async function initComments({ storyId, chapterId = null, toggleBtnId, bodyId, threadId, loginPromptId }) {
     await waitForSupabase();
 
-    const toggleBtn  = document.getElementById(toggleBtnId);
-    const bodyEl     = document.getElementById(bodyId);
-    const threadEl   = document.getElementById(threadId);
+    const toggleBtn   = document.getElementById(toggleBtnId);
+    const bodyEl      = document.getElementById(bodyId);
+    const threadEl    = document.getElementById(threadId);
     const loginPrompt = document.getElementById(loginPromptId);
 
     if (!toggleBtn || !bodyEl || !threadEl) return;
 
-    // Toggle open/close
-    toggleBtn.addEventListener('click', function () {
-        const isOpen = bodyEl.classList.toggle('is-open');
-        const chevron = this.querySelector('[id$="-chevron"], use');
-        if (chevron) chevron.setAttribute('href', isOpen ? '#icon-chevron-up' : '#icon-chevron-down');
-        if (isOpen) loadComments();
-    });
+    let initialized = false;
 
-    const { data: { session } } = await window.supabase.auth.getSession();
-    const currentUser = session?.user || null;
-    const isAdmin = window.H2O?.profile?.is_admin || false;
+    async function setup() {
+        if (initialized) return;
+        initialized = true;
 
-    // Show/hide login prompt
-    if (loginPrompt) loginPrompt.style.display = currentUser ? 'none' : 'block';
+        const { data: { session } } = await window.supabase.auth.getSession();
+        const currentUser = session?.user || null;
+        const isAdmin = window.H2O?.profile?.is_admin || false;
 
-    // Add comment input for logged in users
-    if (currentUser) {
-        const inputBox = buildCommentInput(
-            'Leave a comment…',
-            'Post',
-            async (body, isSpoiler) => {
-                await postComment(body, isSpoiler, null, currentUser.id, storyId, chapterId);
-                loadComments();
-            }
-        );
-        bodyEl.insertBefore(inputBox, threadEl);
-    }
+        if (loginPrompt) loginPrompt.style.display = currentUser ? 'none' : 'block';
 
-    async function loadComments() {
-        threadEl.innerHTML = '<div style="padding:var(--gap-md);color:var(--text-ghost);font-size:13px">Loading…</div>';
+        if (currentUser) {
+            const existing = bodyEl.querySelector('.comment-input-wrap');
+            if (existing) existing.remove();
 
-        let query = window.supabase
-            .from('comments')
-            .select('*, profiles(display_name, handle)')
-            .eq('story_id', storyId)
-            .eq('is_deleted', false)
-            .is('parent_id', null)
-            .order('created_at', { ascending: true });
-
-        if (chapterId) query = query.eq('chapter_id', chapterId);
-        else query = query.is('chapter_id', null);
-
-        const { data: comments } = await query;
-
-        if (!comments || comments.length === 0) {
-            threadEl.innerHTML = '<div class="empty-state" style="padding:var(--gap-lg) 0;font-size:13px">No comments yet. Be the first!</div>';
-            return;
+            const inputBox = buildCommentInput(
+                'Leave a comment…',
+                'Post',
+                async (body, isSpoiler) => {
+                    await postComment(body, isSpoiler, null, currentUser.id, storyId, chapterId);
+                    loadComments();
+                }
+            );
+            bodyEl.insertBefore(inputBox, threadEl);
         }
 
-        threadEl.innerHTML = comments.map(c => buildComment(c, currentUser?.id, isAdmin)).join('');
+        loadComments();
 
-        // Load replies for each comment
-        for (const c of comments) {
-            const { data: replies } = await window.supabase
+        async function loadComments() {
+            threadEl.innerHTML = '<div style="padding:var(--gap-md);color:var(--text-ghost);font-size:13px">Loading…</div>';
+
+            let query = window.supabase
                 .from('comments')
                 .select('*, profiles(display_name, handle)')
-                .eq('parent_id', c.id)
+                .eq('story_id', storyId)
                 .eq('is_deleted', false)
+                .is('parent_id', null)
                 .order('created_at', { ascending: true });
 
-            const repliesEl = document.getElementById(`replies-${c.id}`);
-            if (repliesEl && replies?.length) {
-                repliesEl.innerHTML = replies.map(r => buildReply(r, currentUser?.id, isAdmin)).join('');
-            }
-        }
+            if (chapterId) query = query.eq('chapter_id', chapterId);
+            else query = query.is('chapter_id', null);
 
-        // Bind events
-        bindCommentEvents(threadEl, currentUser, storyId, chapterId, loadComments);
+            const { data: comments } = await query;
+
+            if (!comments || comments.length === 0) {
+                threadEl.innerHTML = '<div class="empty-state" style="padding:var(--gap-lg) 0;font-size:13px">No comments yet. Be the first!</div>';
+                return;
+            }
+
+            threadEl.innerHTML = comments.map(c => buildComment(c, currentUser?.id, isAdmin)).join('');
+
+            for (const c of comments) {
+                const { data: replies } = await window.supabase
+                    .from('comments')
+                    .select('*, profiles(display_name, handle)')
+                    .eq('parent_id', c.id)
+                    .eq('is_deleted', false)
+                    .order('created_at', { ascending: true });
+
+                const repliesEl = document.getElementById('replies-' + c.id);
+                if (repliesEl && replies?.length) {
+                    repliesEl.innerHTML = replies.map(r => buildReply(r, currentUser?.id, isAdmin)).join('');
+                }
+            }
+
+            bindCommentEvents(threadEl, currentUser, storyId, chapterId, loadComments);
+        }
     }
+
+    toggleBtn.addEventListener('click', function () {
+        const isOpen = bodyEl.classList.toggle('is-open');
+        const chevron = this.querySelector('use');
+        if (chevron) chevron.setAttribute('href', isOpen ? '#icon-chevron-up' : '#icon-chevron-down');
+        if (isOpen) setup();
+    });
 }
+
 
 /* ── Post a comment ─────────────────────────────────────── */
 async function postComment(body, isSpoiler, parentId, userId, storyId, chapterId) {
