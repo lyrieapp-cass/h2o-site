@@ -75,20 +75,60 @@ async function fetchProfile(userId) {
     return data;
 }
 
-// ── Check unread notifications ─────────────────────────────
+// ── Check unread notifications + populate bell dropdown ───
 async function checkUnreadNotifications(userId) {
-    const { count } = await window.supabase
+    const { data: notifs } = await window.supabase
         .from('notifications')
-        .select('id', { count: 'exact', head: true })
+        .select('*, stories(title, slug), chapters(num, title)')
         .eq('user_id', userId)
-        .eq('is_read', false);
+        .eq('is_read', false)
+        .order('created_at', { ascending: false })
+        .limit(5);
 
-    if (count && count > 0) {
-        const bellDot    = document.getElementById('bell-dot');
-        const mobileDot  = document.getElementById('mobile-unread-dot');
+    const count = notifs?.length || 0;
+
+    if (count > 0) {
+        const bellDot   = document.getElementById('bell-dot');
+        const mobileDot = document.getElementById('mobile-unread-dot');
         if (bellDot)   bellDot.style.display   = 'block';
         if (mobileDot) mobileDot.style.display = 'block';
     }
+
+    // Populate bell dropdown body
+    const dropdownBody = document.getElementById('bell-dropdown-body');
+    if (!dropdownBody) return;
+
+    if (!notifs || notifs.length === 0) {
+        dropdownBody.innerHTML = '<div class="empty-state" style="padding:24px 16px;font-size:13px">No new notifications.</div>';
+        return;
+    }
+
+    function timeAgo(d) {
+        const diff = Math.floor((Date.now() - new Date(d)) / 1000);
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+        return Math.floor(diff/86400) + 'd ago';
+    }
+
+    dropdownBody.innerHTML = notifs.map(n => {
+        const title  = n.stories?.title || 'Story';
+        const slug   = n.stories?.slug  || '';
+        const chNum  = n.chapters?.num  || 1;
+        const detail = n.type === 'new_chapter'
+            ? `New chapter: Ch.${String(chNum).padStart(2,'0')}`
+            : 'Someone replied to your comment';
+        const href = slug ? `read.html?slug=${slug}&ch=${chNum}` : 'notifications.html';
+        return `
+            <a class="notif-item is-unread" href="${href}" style="text-decoration:none">
+                <div class="notif-item__body">
+                    <div class="notif-item__title">${title}</div>
+                    <div class="notif-item__detail">${detail}</div>
+                </div>
+                <div class="notif-item__time">${timeAgo(n.created_at)}</div>
+            </a>
+        `;
+    }).join('');
 }
 
 // ── Continue reading (homepage only) ──────────────────────
