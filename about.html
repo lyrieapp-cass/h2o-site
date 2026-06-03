@@ -196,10 +196,7 @@
                 <div class="avatar-dropdown" id="avatar-dropdown">
                     <div class="avatar-dropdown__header">
                         <div class="avatar-dropdown__name" id="dropdown-name">Reader</div>
-                        <div class="avatar-dropdown__handle" id="dropdown-handle">@handle</div>
-                    </div>
                     <a href="profile.html" class="avatar-dropdown__item">My Profile</a>
-                    <a href="#" class="avatar-dropdown__item">Bookmarks</a>
                     <div class="avatar-dropdown__divider"></div>
                     <button class="avatar-dropdown__item avatar-dropdown__item--danger" id="signout-btn">Sign Out</button>
                 </div>
@@ -214,7 +211,7 @@
         <!-- Hero -->
         <div class="about-hero">
             <div class="about-hero__title brand-text">H2O <span>Writes</span></div>
-            <p class="about-hero__tagline">Original stories by givemeaglassofh2o — Keep hydrated y'all!...</p>
+            <p class="about-hero__tagline">Original stories by givemeaglassofh2o — written for the readers who stay until the last page.</p>
         </div>
 
         <div class="about-divider"></div>
@@ -224,13 +221,13 @@
 
             <div class="about-section-title">Who is H2O?</div>
             <p>
-                Hi. I'm <strong>givemeaglassofh2o</strong>, a writer who started posting stories online because I couldn't find the exact kind of story I wanted to read, so I decided to write it myself. LOL. I post under the name H2O because, well, I like water. It's essential. Plus, it reminds me to stay hydrated while I'm writing! :>>
+                Hi. I'm <strong>givemeaglassofh2o</strong> — a writer who started posting stories online because I couldn't find the exact kind of story I wanted to read, so I decided to write it myself.
             </p>
             <p>
-                I write across genres: romance, drama, fantasy, thriller, a little horror. What they tend to have in common is quietness, characters doing ordinary things in extraordinary circumstances, relationships that develop slowly, and endings that try to earn their weight.
+                I write across genres: romance, drama, fantasy, thriller, a little horror. What they tend to have in common is quietness — characters doing ordinary things in extraordinary circumstances, relationships that develop slowly, and endings that try to earn their weight.
             </p>
             <p>
-                I update when I can. I don't abandon stories. If a story is marked <strong>Ongoing</strong>, it is actively being written.
+                I update regularly. I don't abandon stories. If a story is marked <strong>Ongoing</strong>, it is actively being written.
             </p>
 
             <div class="about-section-title">What I write</div>
@@ -249,7 +246,7 @@
 
             <div class="about-section-title">This site</div>
             <p>
-                H2O Writes is a personal reading platform built specifically for these stories. No ads. No algorithm. No paywalls. Just the stories, a clean reading experience, and a small community of readers who actually care about my work <3.
+                H2O Writes is a personal reading platform built specifically for these stories. No ads. No algorithm. No paywalls. Just the stories, a clean reading experience, and a small community of readers who actually care about the work.
             </p>
             <p>
                 You can create a free account to bookmark stories, track your reading history, and leave comments on chapters. Accounts are optional — every story is free to read without one.
@@ -265,15 +262,15 @@
 
             <div class="about-section-title">Find me elsewhere</div>
             <div class="about-socials">
-                <a href="#" class="about-social-link">
+                <a href="https://www.tiktok.com/@givemeaglassofh2o" target="_blank" rel="noopener" class="about-social-link">
                     <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
                     TikTok
                 </a>
-                <a href="#" class="about-social-link">
+                <a href="https://www.tiktok.com/@givemeaglassofh2o" target="_blank" rel="noopener" class="about-social-link">
                     <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 4l16 16M4 20L20 4"/></svg>
                     Twitter / X
                 </a>
-                <a href="#" class="about-social-link">
+                <a href="https://www.tiktok.com/@givemeaglassofh2o" target="_blank" rel="noopener" class="about-social-link">
                     <svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
                     Instagram
                 </a>
@@ -308,7 +305,7 @@
                 <a href="terms.html">Terms</a>
             </nav>
             <div class="footer__socials">
-                <a href="#" class="footer__social-link" aria-label="TikTok">
+                <a href="https://www.tiktok.com/@givemeaglassofh2o" target="_blank" rel="noopener" class="footer__social-link" aria-label="TikTok">
                     <svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
                 </a>
                 <a href="#" class="footer__social-link" aria-label="Twitter / X">
@@ -331,20 +328,17 @@
 
 <nav class="mobile-nav">
     <div class="mobile-nav__inner">
-        <button class="mobile-nav__tab" onclick="location.href='index.html'">
-            <svg><use href="#icon-home"/></svg><span>Home</span>
+        <button class="mobile-nav__tab" data-page="home" onclick="location.href='index.html'">
+            <svg><use href="#icon-home"/></svg>
+            <span>Home</span>
         </button>
-        <button class="mobile-nav__tab" onclick="location.href='stories.html'">
-            <svg><use href="#icon-grid"/></svg><span>Stories</span>
+        <button class="mobile-nav__tab" data-page="stories" onclick="location.href='stories.html'">
+            <svg><use href="#icon-grid"/></svg>
+            <span>Stories</span>
         </button>
-        <button class="mobile-nav__tab" onclick="location.href='stories.html#search'">
-            <svg><use href="#icon-search"/></svg><span>Search</span>
-        </button>
-        <button class="mobile-nav__tab" data-auth-required>
-            <svg><use href="#icon-bell"/></svg><span>Notifs</span>
-        </button>
-        <button class="mobile-nav__tab" data-auth-required>
-            <svg><use href="#icon-user"/></svg><span>Profile</span>
+        <button class="mobile-nav__tab" data-page="profile" onclick="location.href='profile.html'">
+            <svg><use href="#icon-user"/></svg>
+            <span>Profile</span>
         </button>
     </div>
 </nav>
