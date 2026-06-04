@@ -15,7 +15,6 @@
     <symbol id="icon-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
     <symbol id="icon-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
     <symbol id="icon-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></symbol>
-    <symbol id="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
     <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
     <symbol id="icon-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></symbol>
 </svg>
@@ -41,16 +40,15 @@
     <main class="admin-main">
         <div class="admin-page-title">Comments</div>
 
-        <!-- Tabs -->
-        <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:var(--gap-xl)">
-            <button class="profile-tab active" id="tab-all" style="padding:10px var(--gap-lg);font-size:13px;font-weight:600;color:var(--text-ghost);cursor:pointer;border-bottom:2px solid var(--accent);color:var(--text);background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-ui)">All Comments</button>
+        <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:var(--gap-xl);gap:0">
+            <button class="profile-tab active" id="tab-all" style="padding:10px var(--gap-lg);font-size:13px;font-weight:600;color:var(--text);cursor:pointer;border-bottom:2px solid var(--accent);background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-ui)">All Comments</button>
             <button class="profile-tab" id="tab-reported" style="padding:10px var(--gap-lg);font-size:13px;font-weight:600;color:var(--text-ghost);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font-ui)">
                 Reported
                 <span class="badge badge--warning" style="margin-left:6px;font-size:10px" id="reported-count">0</span>
             </button>
         </div>
 
-        <!-- All comments panel -->
+        <!-- All comments -->
         <div id="panel-all">
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">
                 <table class="admin-table">
@@ -58,23 +56,19 @@
                         <tr>
                             <th>User</th>
                             <th>Comment</th>
-                            <th>Story / Chapter</th>
+                            <th>Story</th>
                             <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="comments-table">
-                        <tr>
-                            <td colspan="5" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">
-                                Comment data loads from Supabase in Phase 3B.
-                            </td>
-                        </tr>
+                        <tr><td colspan="5" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">Loading…</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Reported panel -->
+        <!-- Reported -->
         <div id="panel-reported" style="display:none">
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden">
                 <table class="admin-table">
@@ -82,52 +76,127 @@
                         <tr>
                             <th>User</th>
                             <th>Comment</th>
-                            <th>Reason</th>
                             <th>Reports</th>
+                            <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="reported-table">
-                        <tr>
-                            <td colspan="5" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">
-                                No reported comments.
-                            </td>
-                        </tr>
+                        <tr><td colspan="5" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">No reported comments.</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </main>
 </div>
 
 <script src="../js/main.js"></script>
 <script src="../js/supabase.js"></script>
+<script src="../js/admin-guard.js"></script>
 <script src="../js/auth.js"></script>
 <script>
+function waitForSupabase() {
+    return new Promise(resolve => {
+        if (window.supabase && window.supabase.from) return resolve();
+        window.addEventListener('supabase-ready', resolve, { once: true });
+    });
+}
+
+function formatDate(d) {
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function truncate(str, n) {
+    return str && str.length > n ? str.substring(0, n) + '…' : str;
+}
+
+async function deleteComment(id) {
+    if (!confirm('Delete this comment permanently?')) return;
+    await waitForSupabase();
+    await window.supabase.from('comments').update({ is_deleted: true }).eq('id', id);
+    loadComments();
+}
+
+async function dismissReport(id) {
+    await waitForSupabase();
+    await window.supabase.from('comments').update({ report_count: 0 }).eq('id', id);
+    loadComments();
+}
+
+async function loadComments() {
+    await waitForSupabase();
+
+    // All comments
+    const { data: all } = await window.supabase
+        .from('comments')
+        .select('*, profiles(display_name, handle), stories(title)')
+        .eq('is_deleted', false)
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+    const tbody = document.getElementById('comments-table');
+    if (!all || all.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">No comments yet.</td></tr>';
+    } else {
+        tbody.innerHTML = all.map(c => `
+            <tr>
+                <td style="font-weight:600;color:var(--text)">${escapeHtml(c.profiles?.display_name || 'Unknown')}</td>
+                <td style="color:var(--text-muted);max-width:300px">${escapeHtml(truncate(c.body, 80))}</td>
+                <td style="color:var(--text-muted)">${escapeHtml(c.stories?.title || '—')}</td>
+                <td>${formatDate(c.created_at)}</td>
+                <td>
+                    <button class="btn btn--ghost btn--sm" style="color:var(--color-danger)" onclick="deleteComment('${c.id}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><use href="#icon-trash"/></svg>
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Reported comments
+    const reported = (all || []).filter(c => c.report_count > 0);
+    document.getElementById('reported-count').textContent = reported.length;
+
+    const rtbody = document.getElementById('reported-table');
+    if (reported.length === 0) {
+        rtbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-ghost);padding:var(--gap-xl)">No reported comments.</td></tr>';
+    } else {
+        rtbody.innerHTML = reported.map(c => `
+            <tr>
+                <td style="font-weight:600;color:var(--text)">${escapeHtml(c.profiles?.display_name || 'Unknown')}</td>
+                <td style="color:var(--text-muted);max-width:240px">${escapeHtml(truncate(c.body, 60))}</td>
+                <td><span class="badge badge--warning">${c.report_count}</span></td>
+                <td>${formatDate(c.created_at)}</td>
+                <td style="display:flex;gap:4px">
+                    <button class="btn btn--ghost btn--sm" onclick="dismissReport('${c.id}')">Dismiss</button>
+                    <button class="btn btn--ghost btn--sm" style="color:var(--color-danger)" onclick="deleteComment('${c.id}')">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+}
+
 // Tab switching
 document.getElementById('tab-all').addEventListener('click', function () {
-    this.style.borderBottomColor = 'var(--accent)';
-    this.style.color = 'var(--text)';
-    document.getElementById('tab-reported').style.borderBottomColor = 'transparent';
-    document.getElementById('tab-reported').style.color = 'var(--text-ghost)';
+    this.style.cssText += 'border-bottom-color:var(--accent);color:var(--text)';
+    document.getElementById('tab-reported').style.cssText += 'border-bottom-color:transparent;color:var(--text-ghost)';
     document.getElementById('panel-all').style.display = 'block';
     document.getElementById('panel-reported').style.display = 'none';
 });
 
 document.getElementById('tab-reported').addEventListener('click', function () {
-    this.style.borderBottomColor = 'var(--accent)';
-    this.style.color = 'var(--text)';
-    document.getElementById('tab-all').style.borderBottomColor = 'transparent';
-    document.getElementById('tab-all').style.color = 'var(--text-ghost)';
+    this.style.cssText += 'border-bottom-color:var(--accent);color:var(--text)';
+    document.getElementById('tab-all').style.cssText += 'border-bottom-color:transparent;color:var(--text-ghost)';
     document.getElementById('panel-all').style.display = 'none';
     document.getElementById('panel-reported').style.display = 'block';
 });
 
-// Jump to reported tab if hash
 if (window.location.hash === '#reported') {
     document.getElementById('tab-reported').click();
 }
+
+document.addEventListener('DOMContentLoaded', loadComments);
 </script>
 </body>
 </html>
